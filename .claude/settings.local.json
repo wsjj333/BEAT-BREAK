@@ -5,7 +5,9 @@
       "Bash(npm:*)",
       "Bash(npx vite:*)",
       "Bash(git add:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git commit:*)",
+      "Bash(powershell.exe -Command \"Get-Content ..\\\\task-01.diff -Raw | Set-Clipboard\")"
     ]
   }
 }

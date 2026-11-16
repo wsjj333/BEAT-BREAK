@@ -99,6 +99,9 @@ export const ENEMY_ATTACK_DAMAGE = 1;
 /** 한 판 최대 비트 수. 초과 시 timeout 패배 */
 export const MAX_BEATS = 120;
 
+/** nearestBeat 중간값 판정 허용 오차 (초). 부동소수점 오차 흡수용. D-04 참조 */
+export const MIDPOINT_EPS_SEC = 1e-9;
+
 // ─── 헬퍼 ─────────────────────────────────────────────────────────────────
 
 /** BPM에서 1박 길이를 초 단위로 반환 */
