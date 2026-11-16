@@ -102,7 +102,7 @@ export const MAX_BEATS = 120;
 // ─── 헬퍼 ─────────────────────────────────────────────────────────────────
 
 /** BPM에서 1박 길이를 초 단위로 반환 */
-export function beatDurationSec(bpm: number): number {
+export function beatDurationSec(bpm: Bpm): number {
   return 60 / bpm;
 }
 
