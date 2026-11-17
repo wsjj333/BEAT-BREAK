@@ -1,0 +1,2442 @@
+[
+  {
+    "version": 2,
+    "runId": "2026-11-17T14:02:50.010Z#1",
+    "startedAt": "2026-11-17T14:02:50.010Z",
+    "calibrationOffsetMs": 0,
+    "resolveMarginMs": 50,
+    "outcome": "victory",
+    "cause": null,
+    "durationSec": 16.22,
+    "lastResolvedBeat": 30,
+    "restarted": true,
+    "summary": {
+      "attackJudgeByBpm": {
+        "100": {
+          "perfect": 6,
+          "good": 3,
+          "miss": 1
+        },
+        "120": {
+          "perfect": 9,
+          "good": 1,
+          "miss": 1
+        },
+        "140": {
+          "perfect": 3,
+          "good": 0,
+          "miss": 0
+        }
+      },
+      "attackAfterResolveByBpm": {
+        "100": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        },
+        "120": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        },
+        "140": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        }
+      },
+      "dodgeByBpm": {
+        "100": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0,
+          "none": 2,
+          "hits": 2
+        },
+        "120": {
+          "perfect": 3,
+          "good": 0,
+          "miss": 1,
+          "none": 0,
+          "hits": 1
+        },
+        "140": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0,
+          "none": 0,
+          "hits": 0
+        }
+      },
+      "damageDealtByBpm": {
+        "100": 105,
+        "120": 153.125,
+        "140": 56.25
+      },
+      "enemyAttacks": 6,
+      "hitsTaken": 3,
+      "hitRate": 0.5,
+      "tempoOpportunities": 2,
+      "tempoSelections": 2,
+      "tempoRequests": 2,
+      "maxBpm": 140,
+      "maxCombo": 10,
+      "firstSuccessfulAttackSec": 0.5702666666607061
+    },
+    "events": [
+      {
+        "type": "judge",
+        "t": 0.16966666666666685,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 0,
+        "bpm": 100,
+        "result": "miss",
+        "errorMs": 169.66666666666686
+      },
+      {
+        "type": "attack_resolved",
+        "t": 0.21066666666666656,
+        "beat": 0,
+        "bpm": 100,
+        "attack": "miss",
+        "enemyDamage": 0,
+        "enemyHp": 300,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 0.5702666666607061,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 1,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -29.733333339293843
+      },
+      {
+        "type": "attack_resolved",
+        "t": 0.8106666666666666,
+        "beat": 1,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 287.5,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 1.130366666684548,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 2,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -69.63333331545196
+      },
+      {
+        "type": "attack_resolved",
+        "t": 1.4106666666666667,
+        "beat": 2,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 275,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 1.7504666666785873,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 3,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -49.53333332141252
+      },
+      {
+        "type": "attack_resolved",
+        "t": 2.010666666666667,
+        "beat": 3,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 262.5,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 2.3501666666666665,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 4,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -49.8333333333334
+      },
+      {
+        "type": "attack_resolved",
+        "t": 2.6106666666666665,
+        "beat": 4,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 250,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 2.9797999999821188,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 5,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -20.200000017881248
+      },
+      {
+        "type": "attack_resolved",
+        "t": 3.2106666666666666,
+        "beat": 5,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 237.5,
+        "combo": 5
+      },
+      {
+        "type": "tempo_opportunity",
+        "t": 3.2106666666666666,
+        "beat": 5,
+        "bpm": 100,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 3.550466666648785,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 6,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -49.53333335121446
+      },
+      {
+        "type": "attack_resolved",
+        "t": 3.810666666666667,
+        "beat": 6,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 225,
+        "combo": 6
+      },
+      {
+        "type": "judge",
+        "t": 4.199699999988079,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 7,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "enemy_attack",
+        "t": 4.410666666666667,
+        "beat": 7,
+        "bpm": 100,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 4
+      },
+      {
+        "type": "judge",
+        "t": 4.5395999999940395,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 8,
+        "bpm": 100,
+        "result": "miss",
+        "errorMs": null
+      },
+      {
+        "type": "tempo_request",
+        "t": 4.78,
+        "bpm": 100,
+        "combo": 6,
+        "scheduled": true,
+        "applyAtBeat": 12,
+        "reason": null
+      },
+      {
+        "type": "judge",
+        "t": 4.910266666660706,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 8,
+        "bpm": 100,
+        "result": "good",
+        "errorMs": 110.26666666070639
+      },
+      {
+        "type": "attack_resolved",
+        "t": 5.010666666666666,
+        "beat": 8,
+        "bpm": 100,
+        "attack": "good",
+        "enemyDamage": 10,
+        "enemyHp": 215,
+        "combo": 7
+      },
+      {
+        "type": "judge",
+        "t": 5.2996999999880785,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 9,
+        "bpm": 100,
+        "result": "good",
+        "errorMs": -100.30000001192096
+      },
+      {
+        "type": "attack_resolved",
+        "t": 5.610666666666667,
+        "beat": 9,
+        "bpm": 100,
+        "attack": "good",
+        "enemyDamage": 10,
+        "enemyHp": 205,
+        "combo": 8
+      },
+      {
+        "type": "judge",
+        "t": 5.899700000017882,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 10,
+        "bpm": 100,
+        "result": "good",
+        "errorMs": -100.29999998211814
+      },
+      {
+        "type": "attack_resolved",
+        "t": 6.210666666666667,
+        "beat": 10,
+        "bpm": 100,
+        "attack": "good",
+        "enemyDamage": 10,
+        "enemyHp": 195,
+        "combo": 9
+      },
+      {
+        "type": "judge",
+        "t": 6.570266666690508,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 11,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "enemy_attack",
+        "t": 6.810666666666667,
+        "beat": 11,
+        "bpm": 100,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 3
+      },
+      {
+        "type": "judge",
+        "t": 7.1700666666726285,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 12,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "tempo_applied",
+        "t": 7.390666666666666,
+        "beat": 12,
+        "bpm": 120
+      },
+      {
+        "type": "attack_resolved",
+        "t": 7.390666666666666,
+        "beat": 12,
+        "bpm": 120,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 195,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 7.510366666654747,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 13,
+        "bpm": 120,
+        "result": "miss",
+        "errorMs": -189.63333334525245
+      },
+      {
+        "type": "judge",
+        "t": 7.870366666654746,
+        "channel": "attack",
+        "kind": "duplicate_ignored",
+        "beat": 13,
+        "bpm": 120,
+        "result": null,
+        "errorMs": null
+      },
+      {
+        "type": "attack_resolved",
+        "t": 7.890666666666666,
+        "beat": 13,
+        "bpm": 120,
+        "attack": "miss",
+        "enemyDamage": 0,
+        "enemyHp": 195,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 8.239700000017882,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 14,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": 39.70000001788243
+      },
+      {
+        "type": "attack_resolved",
+        "t": 8.390666666666666,
+        "beat": 14,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 179.375,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 8.650066666672627,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 15,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "judge",
+        "t": 8.859699999988079,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 15,
+        "bpm": 120,
+        "result": "miss",
+        "errorMs": 159.6999999880797
+      },
+      {
+        "type": "enemy_attack",
+        "t": 8.890666666666666,
+        "beat": 15,
+        "bpm": 120,
+        "dodge": "miss",
+        "playerDamage": 1,
+        "playerHp": 2
+      },
+      {
+        "type": "judge",
+        "t": 9.07969999998808,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 16,
+        "bpm": 120,
+        "result": "good",
+        "errorMs": -120.30000001191965
+      },
+      {
+        "type": "attack_resolved",
+        "t": 9.390666666666666,
+        "beat": 16,
+        "bpm": 120,
+        "attack": "good",
+        "enemyDamage": 12.5,
+        "enemyHp": 166.875,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 9.630366666654746,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 17,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -69.63333334525323
+      },
+      {
+        "type": "attack_resolved",
+        "t": 9.890666666666666,
+        "beat": 17,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 151.25,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 10.150366666654746,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 18,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -49.63333334525366
+      },
+      {
+        "type": "attack_resolved",
+        "t": 10.390666666666666,
+        "beat": 18,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 135.625,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 10.650166666666665,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 19,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -49.83333333333384
+      },
+      {
+        "type": "enemy_attack",
+        "t": 10.890666666666666,
+        "beat": 19,
+        "bpm": 120,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 2
+      },
+      {
+        "type": "judge",
+        "t": 11.15959999999404,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 20,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -40.40000000595967
+      },
+      {
+        "type": "attack_resolved",
+        "t": 11.390666666666666,
+        "beat": 20,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 120,
+        "combo": 5
+      },
+      {
+        "type": "tempo_opportunity",
+        "t": 11.390666666666666,
+        "beat": 20,
+        "bpm": 120,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 11.639700000017882,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 21,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -60.299999982117214
+      },
+      {
+        "type": "attack_resolved",
+        "t": 11.890666666666666,
+        "beat": 21,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 104.375,
+        "combo": 6
+      },
+      {
+        "type": "judge",
+        "t": 12.170266666660707,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 22,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -29.7333333392924
+      },
+      {
+        "type": "attack_resolved",
+        "t": 12.390666666666666,
+        "beat": 22,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 88.75,
+        "combo": 7
+      },
+      {
+        "type": "judge",
+        "t": 12.630366666654746,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 23,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -69.63333334525323
+      },
+      {
+        "type": "enemy_attack",
+        "t": 12.890666666666666,
+        "beat": 23,
+        "bpm": 120,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 2
+      },
+      {
+        "type": "tempo_request",
+        "t": 13.090666666666667,
+        "bpm": 120,
+        "combo": 7,
+        "scheduled": true,
+        "applyAtBeat": 28,
+        "reason": null
+      },
+      {
+        "type": "judge",
+        "t": 13.13969999998808,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 24,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -60.30000001191915
+      },
+      {
+        "type": "attack_resolved",
+        "t": 13.390666666666666,
+        "beat": 24,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 73.125,
+        "combo": 8
+      },
+      {
+        "type": "judge",
+        "t": 13.63969999998808,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 25,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -60.30000001191915
+      },
+      {
+        "type": "attack_resolved",
+        "t": 13.890666666666666,
+        "beat": 25,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 57.5,
+        "combo": 9
+      },
+      {
+        "type": "judge",
+        "t": 14.170366666654747,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 26,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -29.63333334525231
+      },
+      {
+        "type": "attack_resolved",
+        "t": 14.390666666666666,
+        "beat": 26,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 41.875,
+        "combo": 10
+      },
+      {
+        "type": "judge",
+        "t": 14.67959999999404,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 27,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -20.400000005960095
+      },
+      {
+        "type": "enemy_attack",
+        "t": 14.890666666666666,
+        "beat": 27,
+        "bpm": 120,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 2
+      },
+      {
+        "type": "judge",
+        "t": 15.170166666666667,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 28,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -29.83333333333249
+      },
+      {
+        "type": "tempo_applied",
+        "t": 15.370666666666665,
+        "beat": 28,
+        "bpm": 140
+      },
+      {
+        "type": "attack_resolved",
+        "t": 15.370666666666665,
+        "beat": 28,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 23.125,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 15.679699999988078,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 29,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": 51.12857141664939
+      },
+      {
+        "type": "attack_resolved",
+        "t": 15.790666666666667,
+        "beat": 29,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 4.375,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 16.039699999988077,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 30,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -17.44285715478
+      },
+      {
+        "type": "attack_resolved",
+        "t": 16.22,
+        "beat": 30,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 0,
+        "combo": 3
+      },
+      {
+        "type": "run_end",
+        "t": 16.22,
+        "outcome": "victory",
+        "cause": null,
+        "lastResolvedBeat": 30
+      }
+    ]
+  },
+  {
+    "version": 2,
+    "runId": "2026-11-17T14:03:08.768Z#2",
+    "startedAt": "2026-11-17T14:03:08.768Z",
+    "calibrationOffsetMs": 0,
+    "resolveMarginMs": 50,
+    "outcome": "victory",
+    "cause": null,
+    "durationSec": 12.819999999999997,
+    "lastResolvedBeat": 25,
+    "restarted": true,
+    "summary": {
+      "attackJudgeByBpm": {
+        "100": {
+          "perfect": 5,
+          "good": 1,
+          "miss": 1
+        },
+        "120": {
+          "perfect": 5,
+          "good": 1,
+          "miss": 0
+        },
+        "140": {
+          "perfect": 6,
+          "good": 2,
+          "miss": 0
+        }
+      },
+      "attackAfterResolveByBpm": {
+        "100": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        },
+        "120": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        },
+        "140": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        }
+      },
+      "dodgeByBpm": {
+        "100": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0,
+          "none": 1,
+          "hits": 1
+        },
+        "120": {
+          "perfect": 1,
+          "good": 1,
+          "miss": 0,
+          "none": 0,
+          "hits": 1
+        },
+        "140": {
+          "perfect": 2,
+          "good": 0,
+          "miss": 0,
+          "none": 0,
+          "hits": 0
+        }
+      },
+      "damageDealtByBpm": {
+        "100": 72.5,
+        "120": 90.625,
+        "140": 142.5
+      },
+      "enemyAttacks": 5,
+      "hitsTaken": 2,
+      "hitRate": 0.4,
+      "tempoOpportunities": 2,
+      "tempoSelections": 2,
+      "tempoRequests": 2,
+      "maxBpm": 140,
+      "maxCombo": 8,
+      "firstSuccessfulAttackSec": 0.6993000000119203
+    },
+    "events": [
+      {
+        "type": "attack_resolved",
+        "t": 0.21066666666666478,
+        "beat": 0,
+        "bpm": 100,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 300,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 0.2703666666547413,
+        "channel": "attack",
+        "kind": "late_miss_combo_reset",
+        "beat": 0,
+        "bpm": 100,
+        "result": "miss",
+        "errorMs": null
+      },
+      {
+        "type": "judge",
+        "t": 0.6993000000119203,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 1,
+        "bpm": 100,
+        "result": "good",
+        "errorMs": 99.3000000119203
+      },
+      {
+        "type": "attack_resolved",
+        "t": 0.8106666666666662,
+        "beat": 1,
+        "bpm": 100,
+        "attack": "good",
+        "enemyDamage": 10,
+        "enemyHp": 290,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 1.270366666684545,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 2,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": 70.36666668454505
+      },
+      {
+        "type": "attack_resolved",
+        "t": 1.410666666666664,
+        "beat": 2,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 277.5,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 1.8304666666785856,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 3,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": 30.466666678585774
+      },
+      {
+        "type": "attack_resolved",
+        "t": 2.0106666666666655,
+        "beat": 3,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 265,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 2.399599999994038,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 4,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -0.4000000059618536
+      },
+      {
+        "type": "attack_resolved",
+        "t": 2.6106666666666634,
+        "beat": 4,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 252.5,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 2.999600000023843,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 5,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -0.39999997615680627
+      },
+      {
+        "type": "attack_resolved",
+        "t": 3.210666666666665,
+        "beat": 5,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 240,
+        "combo": 5
+      },
+      {
+        "type": "tempo_opportunity",
+        "t": 3.210666666666665,
+        "beat": 5,
+        "bpm": 100,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 3.5998000000119177,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 6,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -0.19999998808195585
+      },
+      {
+        "type": "attack_resolved",
+        "t": 3.810666666666666,
+        "beat": 6,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 227.5,
+        "combo": 6
+      },
+      {
+        "type": "tempo_request",
+        "t": 4.219999999999999,
+        "bpm": 100,
+        "combo": 6,
+        "scheduled": true,
+        "applyAtBeat": 8,
+        "reason": null
+      },
+      {
+        "type": "judge",
+        "t": 4.339700000017881,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 7,
+        "bpm": 100,
+        "result": "good",
+        "errorMs": null
+      },
+      {
+        "type": "enemy_attack",
+        "t": 4.410666666666664,
+        "beat": 7,
+        "bpm": 100,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 4
+      },
+      {
+        "type": "judge",
+        "t": 4.859400000005959,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 8,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": 59.40000000595891
+      },
+      {
+        "type": "tempo_applied",
+        "t": 4.990666666666666,
+        "beat": 8,
+        "bpm": 120
+      },
+      {
+        "type": "attack_resolved",
+        "t": 4.990666666666666,
+        "beat": 8,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 211.875,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 5.410466666678584,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 9,
+        "bpm": 120,
+        "result": "good",
+        "errorMs": 110.46666667858406
+      },
+      {
+        "type": "attack_resolved",
+        "t": 5.490666666666666,
+        "beat": 9,
+        "bpm": 120,
+        "attack": "good",
+        "enemyDamage": 12.5,
+        "enemyHp": 199.375,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 5.770466666648783,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 10,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -29.533333351216662
+      },
+      {
+        "type": "attack_resolved",
+        "t": 5.990666666666666,
+        "beat": 10,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 183.75,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 6.330466666648785,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 11,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": 30.466666648785612
+      },
+      {
+        "type": "enemy_attack",
+        "t": 6.490666666666666,
+        "beat": 11,
+        "bpm": 120,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 4
+      },
+      {
+        "type": "judge",
+        "t": 6.779600000023841,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 12,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -20.399999976159044
+      },
+      {
+        "type": "attack_resolved",
+        "t": 6.990666666666666,
+        "beat": 12,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 168.125,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 7.250466666678584,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 13,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -49.53333332141607
+      },
+      {
+        "type": "attack_resolved",
+        "t": 7.490666666666666,
+        "beat": 13,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 152.5,
+        "combo": 5
+      },
+      {
+        "type": "tempo_opportunity",
+        "t": 7.490666666666666,
+        "beat": 13,
+        "bpm": 120,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 7.750366666654742,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 14,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -49.6333333452581
+      },
+      {
+        "type": "attack_resolved",
+        "t": 7.990666666666666,
+        "beat": 14,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 136.875,
+        "combo": 6
+      },
+      {
+        "type": "tempo_request",
+        "t": 8.04,
+        "bpm": 120,
+        "combo": 6,
+        "scheduled": true,
+        "applyAtBeat": 16,
+        "reason": null
+      },
+      {
+        "type": "judge",
+        "t": 8.250366666654742,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 15,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "judge",
+        "t": 8.410366666654742,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 15,
+        "bpm": 120,
+        "result": "good",
+        "errorMs": 110.36666665474115
+      },
+      {
+        "type": "enemy_attack",
+        "t": 8.490666666666666,
+        "beat": 15,
+        "bpm": 120,
+        "dodge": "good",
+        "playerDamage": 1,
+        "playerHp": 3
+      },
+      {
+        "type": "judge",
+        "t": 8.790366666654744,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 16,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -9.63333334525629
+      },
+      {
+        "type": "tempo_applied",
+        "t": 8.970666666666666,
+        "beat": 16,
+        "bpm": 140
+      },
+      {
+        "type": "attack_resolved",
+        "t": 8.970666666666666,
+        "beat": 16,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 118.125,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 9.270266666690507,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 17,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": 41.69523811907716
+      },
+      {
+        "type": "attack_resolved",
+        "t": 9.390666666666664,
+        "beat": 17,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 99.375,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 9.759699999988076,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 18,
+        "bpm": 140,
+        "result": "good",
+        "errorMs": 102.55714284521744
+      },
+      {
+        "type": "attack_resolved",
+        "t": 9.819999999999997,
+        "beat": 18,
+        "bpm": 140,
+        "attack": "good",
+        "enemyDamage": 15,
+        "enemyHp": 84.375,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 10.050166666666666,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 19,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -35.547619047619605
+      },
+      {
+        "type": "enemy_attack",
+        "t": 10.250666666666664,
+        "beat": 19,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "judge",
+        "t": 10.490466666678586,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 20,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -23.819047607128496
+      },
+      {
+        "type": "attack_resolved",
+        "t": 10.68,
+        "beat": 20,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 65.625,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 10.87970000001788,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 21,
+        "bpm": 140,
+        "result": "good",
+        "errorMs": -63.15714283926255
+      },
+      {
+        "type": "attack_resolved",
+        "t": 11.110666666666663,
+        "beat": 21,
+        "bpm": 140,
+        "attack": "good",
+        "enemyDamage": 15,
+        "enemyHp": 50.625,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 11.339699999988078,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 22,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -31.728571440494235
+      },
+      {
+        "type": "attack_resolved",
+        "t": 11.54,
+        "beat": 22,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 31.875,
+        "combo": 6
+      },
+      {
+        "type": "judge",
+        "t": 11.750166666666665,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 23,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -49.83333333333562
+      },
+      {
+        "type": "enemy_attack",
+        "t": 11.970666666666666,
+        "beat": 23,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "judge",
+        "t": 12.170366666684547,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 24,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -58.204761886882395
+      },
+      {
+        "type": "attack_resolved",
+        "t": 12.390666666666664,
+        "beat": 24,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 13.125,
+        "combo": 7
+      },
+      {
+        "type": "judge",
+        "t": 12.619799999982117,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 25,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -37.34285716074126
+      },
+      {
+        "type": "attack_resolved",
+        "t": 12.819999999999997,
+        "beat": 25,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 0,
+        "combo": 8
+      },
+      {
+        "type": "run_end",
+        "t": 12.819999999999997,
+        "outcome": "victory",
+        "cause": null,
+        "lastResolvedBeat": 25
+      }
+    ]
+  },
+  {
+    "version": 2,
+    "runId": "2026-11-17T14:03:24.032Z#3",
+    "startedAt": "2026-11-17T14:03:24.032Z",
+    "calibrationOffsetMs": 0,
+    "resolveMarginMs": 50,
+    "outcome": "defeat",
+    "cause": "player_hp",
+    "durationSec": 24.25066666666666,
+    "lastResolvedBeat": 51,
+    "restarted": false,
+    "summary": {
+      "attackJudgeByBpm": {
+        "100": {
+          "perfect": 6,
+          "good": 1,
+          "miss": 0
+        },
+        "120": {
+          "perfect": 5,
+          "good": 3,
+          "miss": 0
+        },
+        "140": {
+          "perfect": 3,
+          "good": 0,
+          "miss": 0
+        }
+      },
+      "attackAfterResolveByBpm": {
+        "100": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        },
+        "120": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        },
+        "140": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0
+        }
+      },
+      "dodgeByBpm": {
+        "100": {
+          "perfect": 0,
+          "good": 0,
+          "miss": 0,
+          "none": 1,
+          "hits": 1
+        },
+        "120": {
+          "perfect": 2,
+          "good": 0,
+          "miss": 0,
+          "none": 1,
+          "hits": 1
+        },
+        "140": {
+          "perfect": 5,
+          "good": 1,
+          "miss": 0,
+          "none": 2,
+          "hits": 3
+        }
+      },
+      "damageDealtByBpm": {
+        "100": 85,
+        "120": 115.625,
+        "140": 56.25
+      },
+      "enemyAttacks": 12,
+      "hitsTaken": 5,
+      "hitRate": 0.4166666666666667,
+      "tempoOpportunities": 2,
+      "tempoSelections": 2,
+      "tempoRequests": 3,
+      "maxBpm": 140,
+      "maxCombo": 8,
+      "firstSuccessfulAttackSec": -0.14030000001191922
+    },
+    "events": [
+      {
+        "type": "judge",
+        "t": -0.14030000001191922,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 0,
+        "bpm": 100,
+        "result": "good",
+        "errorMs": -140.30000001191922
+      },
+      {
+        "type": "attack_resolved",
+        "t": 0.21066666666666123,
+        "beat": 0,
+        "bpm": 100,
+        "attack": "good",
+        "enemyDamage": 10,
+        "enemyHp": 290,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 0.6593000000119176,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 1,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": 59.3000000119176
+      },
+      {
+        "type": "attack_resolved",
+        "t": 0.8106666666666626,
+        "beat": 1,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 277.5,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 1.2796999999880754,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 2,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": 79.69999998807542
+      },
+      {
+        "type": "attack_resolved",
+        "t": 1.410666666666664,
+        "beat": 2,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 265,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 1.8503666666547431,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 3,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": 50.36666665474332
+      },
+      {
+        "type": "attack_resolved",
+        "t": 2.0106666666666655,
+        "beat": 3,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 252.5,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 2.4704666666487825,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 4,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": 70.46666664878254
+      },
+      {
+        "type": "attack_resolved",
+        "t": 2.610666666666667,
+        "beat": 4,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 240,
+        "combo": 5
+      },
+      {
+        "type": "tempo_opportunity",
+        "t": 2.610666666666667,
+        "beat": 4,
+        "bpm": 100,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 2.9995999999940395,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 5,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -0.4000000059605213
+      },
+      {
+        "type": "attack_resolved",
+        "t": 3.2106666666666612,
+        "beat": 5,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 227.5,
+        "combo": 6
+      },
+      {
+        "type": "judge",
+        "t": 3.559400000005958,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 6,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": -40.599999994041625
+      },
+      {
+        "type": "tempo_request",
+        "t": 3.630666666666663,
+        "bpm": 100,
+        "combo": 6,
+        "scheduled": true,
+        "applyAtBeat": 8,
+        "reason": null
+      },
+      {
+        "type": "attack_resolved",
+        "t": 3.8106666666666626,
+        "beat": 6,
+        "bpm": 100,
+        "attack": "perfect",
+        "enemyDamage": 12.5,
+        "enemyHp": 215,
+        "combo": 7
+      },
+      {
+        "type": "judge",
+        "t": 4.179499999999997,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 7,
+        "bpm": 100,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "enemy_attack",
+        "t": 4.410666666666664,
+        "beat": 7,
+        "bpm": 100,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 4
+      },
+      {
+        "type": "judge",
+        "t": 4.759699999988079,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 8,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "tempo_applied",
+        "t": 4.990666666666662,
+        "beat": 8,
+        "bpm": 120
+      },
+      {
+        "type": "attack_resolved",
+        "t": 4.990666666666662,
+        "beat": 8,
+        "bpm": 120,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 215,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 5.379499999999993,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 9,
+        "bpm": 120,
+        "result": "good",
+        "errorMs": 79.49999999999324
+      },
+      {
+        "type": "attack_resolved",
+        "t": 5.490666666666662,
+        "beat": 9,
+        "bpm": 120,
+        "attack": "good",
+        "enemyDamage": 12.5,
+        "enemyHp": 202.5,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 5.810266666660702,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 10,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": 10.266666660702306
+      },
+      {
+        "type": "attack_resolved",
+        "t": 5.990666666666662,
+        "beat": 10,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 186.875,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 6.259699999988079,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 11,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -40.30000001192047
+      },
+      {
+        "type": "enemy_attack",
+        "t": 6.490666666666662,
+        "beat": 11,
+        "bpm": 120,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 4
+      },
+      {
+        "type": "judge",
+        "t": 6.770166666666661,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 12,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -29.833333333338707
+      },
+      {
+        "type": "attack_resolved",
+        "t": 6.990666666666662,
+        "beat": 12,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 171.25,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 7.210366666654743,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 13,
+        "bpm": 120,
+        "result": "good",
+        "errorMs": -89.63333334525726
+      },
+      {
+        "type": "attack_resolved",
+        "t": 7.490666666666662,
+        "beat": 13,
+        "bpm": 120,
+        "attack": "good",
+        "enemyDamage": 12.5,
+        "enemyHp": 158.75,
+        "combo": 4
+      },
+      {
+        "type": "judge",
+        "t": 7.770366666654745,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 14,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -29.633333345254975
+      },
+      {
+        "type": "attack_resolved",
+        "t": 7.990666666666662,
+        "beat": 14,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 143.125,
+        "combo": 5
+      },
+      {
+        "type": "tempo_opportunity",
+        "t": 7.990666666666662,
+        "beat": 14,
+        "bpm": 120,
+        "combo": 5
+      },
+      {
+        "type": "judge",
+        "t": 8.319699999988082,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 15,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": 19.69999998808092
+      },
+      {
+        "type": "enemy_attack",
+        "t": 8.490666666666662,
+        "beat": 15,
+        "bpm": 120,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 4
+      },
+      {
+        "type": "judge",
+        "t": 8.759599999994037,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 16,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -40.40000000596322
+      },
+      {
+        "type": "attack_resolved",
+        "t": 8.990666666666662,
+        "beat": 16,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 127.5,
+        "combo": 6
+      },
+      {
+        "type": "tempo_request",
+        "t": 9.159999999999997,
+        "bpm": 120,
+        "combo": 6,
+        "scheduled": true,
+        "applyAtBeat": 20,
+        "reason": null
+      },
+      {
+        "type": "judge",
+        "t": 9.390466666678584,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 17,
+        "bpm": 120,
+        "result": "good",
+        "errorMs": 90.46666667858361
+      },
+      {
+        "type": "attack_resolved",
+        "t": 9.490666666666662,
+        "beat": 17,
+        "bpm": 120,
+        "attack": "good",
+        "enemyDamage": 12.5,
+        "enemyHp": 115,
+        "combo": 7
+      },
+      {
+        "type": "judge",
+        "t": 9.799699999988079,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 18,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": -0.30000001192220793
+      },
+      {
+        "type": "attack_resolved",
+        "t": 9.990666666666662,
+        "beat": 18,
+        "bpm": 120,
+        "attack": "perfect",
+        "enemyDamage": 15.625,
+        "enemyHp": 99.375,
+        "combo": 8
+      },
+      {
+        "type": "judge",
+        "t": 10.270366666684545,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 19,
+        "bpm": 120,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "enemy_attack",
+        "t": 10.490666666666662,
+        "beat": 19,
+        "bpm": 120,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 3
+      },
+      {
+        "type": "tempo_applied",
+        "t": 10.970666666666666,
+        "beat": 20,
+        "bpm": 140
+      },
+      {
+        "type": "attack_resolved",
+        "t": 10.970666666666666,
+        "beat": 20,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 11.299699999988079,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 21,
+        "bpm": 140,
+        "result": "good",
+        "errorMs": null
+      },
+      {
+        "type": "attack_resolved",
+        "t": 11.390666666666661,
+        "beat": 21,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 11.82,
+        "beat": 22,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 12.079600000023838,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 23,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -6.114285690447474
+      },
+      {
+        "type": "enemy_attack",
+        "t": 12.25066666666666,
+        "beat": 23,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "judge",
+        "t": 12.559700000017877,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 24,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "attack_resolved",
+        "t": 12.68,
+        "beat": 24,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 13.110666666666667,
+        "beat": 25,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 13.54,
+        "beat": 26,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 13.759799999982114,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 27,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -40.200000017886595
+      },
+      {
+        "type": "enemy_attack",
+        "t": 13.970666666666666,
+        "beat": 27,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "attack_resolved",
+        "t": 14.390666666666661,
+        "beat": 28,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 14.82,
+        "beat": 29,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 15.25066666666666,
+        "beat": 30,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 15.49016666666666,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 31,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -24.119047619056033
+      },
+      {
+        "type": "enemy_attack",
+        "t": 15.68,
+        "beat": 31,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "attack_resolved",
+        "t": 16.110666666666667,
+        "beat": 32,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 16.54,
+        "beat": 33,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 16.970666666666666,
+        "beat": 34,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 17.17959999999404,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 35,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -48.971428577388565
+      },
+      {
+        "type": "enemy_attack",
+        "t": 17.39066666666666,
+        "beat": 35,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "attack_resolved",
+        "t": 17.82,
+        "beat": 36,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 18.25066666666666,
+        "beat": 37,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 18.68,
+        "beat": 38,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 18.93036666665474,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 39,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": -12.490476202401624
+      },
+      {
+        "type": "enemy_attack",
+        "t": 19.110666666666667,
+        "beat": 39,
+        "bpm": 140,
+        "dodge": "perfect",
+        "playerDamage": 0,
+        "playerHp": 3
+      },
+      {
+        "type": "attack_resolved",
+        "t": 19.54,
+        "beat": 40,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 19.970666666666666,
+        "beat": 41,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "attack_resolved",
+        "t": 20.39066666666666,
+        "beat": 42,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 99.375,
+        "combo": 0
+      },
+      {
+        "type": "judge",
+        "t": 20.590366666654745,
+        "channel": "dodge",
+        "kind": "pending",
+        "beat": 43,
+        "bpm": 140,
+        "result": "good",
+        "errorMs": -66.77619048811323
+      },
+      {
+        "type": "enemy_attack",
+        "t": 20.82,
+        "beat": 43,
+        "bpm": 140,
+        "dodge": "good",
+        "playerDamage": 1,
+        "playerHp": 2
+      },
+      {
+        "type": "judge",
+        "t": 21.099800000011918,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 44,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": 14.08571429763228
+      },
+      {
+        "type": "attack_resolved",
+        "t": 21.25066666666666,
+        "beat": 44,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 80.625,
+        "combo": 1
+      },
+      {
+        "type": "judge",
+        "t": 21.519699999988077,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 45,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": 5.414285702364907
+      },
+      {
+        "type": "attack_resolved",
+        "t": 21.68,
+        "beat": 45,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 61.875,
+        "combo": 2
+      },
+      {
+        "type": "judge",
+        "t": 21.950466666678587,
+        "channel": "attack",
+        "kind": "pending",
+        "beat": 46,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": 7.609523821443531
+      },
+      {
+        "type": "attack_resolved",
+        "t": 22.110666666666667,
+        "beat": 46,
+        "bpm": 140,
+        "attack": "perfect",
+        "enemyDamage": 18.75,
+        "enemyHp": 43.125,
+        "combo": 3
+      },
+      {
+        "type": "tempo_request",
+        "t": 22.379999999999995,
+        "bpm": 140,
+        "combo": 3,
+        "scheduled": false,
+        "applyAtBeat": null,
+        "reason": "combo_too_low"
+      },
+      {
+        "type": "enemy_attack",
+        "t": 22.54,
+        "beat": 47,
+        "bpm": 140,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 1
+      },
+      {
+        "type": "judge",
+        "t": 22.85959999999404,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 48,
+        "bpm": 140,
+        "result": "perfect",
+        "errorMs": null
+      },
+      {
+        "type": "attack_resolved",
+        "t": 22.970666666666666,
+        "beat": 48,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 43.125,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 23.310366666684544,
+        "channel": "dodge",
+        "kind": "dodge_no_effect",
+        "beat": 49,
+        "bpm": 140,
+        "result": "good",
+        "errorMs": null
+      },
+      {
+        "type": "attack_resolved",
+        "t": 23.39066666666666,
+        "beat": 49,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 43.125,
+        "combo": 3
+      },
+      {
+        "type": "attack_resolved",
+        "t": 23.82,
+        "beat": 50,
+        "bpm": 140,
+        "attack": "none",
+        "enemyDamage": 0,
+        "enemyHp": 43.125,
+        "combo": 3
+      },
+      {
+        "type": "judge",
+        "t": 24.010366666654747,
+        "channel": "attack",
+        "kind": "attack_ignored_dodge_beat",
+        "beat": 51,
+        "bpm": 140,
+        "result": "good",
+        "errorMs": null
+      },
+      {
+        "type": "enemy_attack",
+        "t": 24.25066666666666,
+        "beat": 51,
+        "bpm": 140,
+        "dodge": "none",
+        "playerDamage": 1,
+        "playerHp": 0
+      },
+      {
+        "type": "run_end",
+        "t": 24.25066666666666,
+        "outcome": "defeat",
+        "cause": "player_hp",
+        "lastResolvedBeat": 51
+      }
+    ]
+  }
+]
