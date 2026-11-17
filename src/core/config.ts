@@ -1,6 +1,6 @@
 /**
  * src/core/config.ts
- * v0.3 규칙값의 단일 원천. docs/BEAT_BREAK_기획_및_개발계획_v0.3.md 3장 기준.
+ * v0.4 규칙값의 단일 원천. docs/BEAT_BREAK_기획_및_개발계획_v0.4.md 3장 기준.
  * 수치를 임의로 변경하지 않는다. 변경 제안은 docs/decisions.md에 기록 후 승인.
  */
 
@@ -89,9 +89,14 @@ export const TIMING_DAMAGE_MULTIPLIER = {
 
 /**
  * 적 공격 비트 간격.
- * beat 4, 8, 12, ... (0보다 큰 4의 배수)
+ * beat 7, 11, 15, ... (4k+3, k≥1). D-09(a)
  */
 export const ENEMY_ATTACK_BEAT_INTERVAL = 4;
+
+/**
+ * 첫 적 공격 비트. 각 마디의 마지막 박(4k+3)이며 첫 마디(beat 0~3)는 적응 구간. D-09(a)
+ */
+export const ENEMY_ATTACK_FIRST_BEAT = 7;
 
 /** 적 공격 1회 피해 */
 export const ENEMY_ATTACK_DAMAGE = 1;
@@ -120,10 +125,13 @@ export function beatDurationSec(bpm: Bpm): number {
 }
 
 /**
- * 비트가 적 공격 비트인지 확인 (beat 4, 8, 12, ... — 0보다 큰 4의 배수)
+ * 비트가 적 공격 비트인지 확인 (beat 7, 11, 15, ... — 4k+3, k≥1). D-09(a)
  */
 export function isEnemyAttackBeat(beat: number): boolean {
-  return beat > 0 && beat % ENEMY_ATTACK_BEAT_INTERVAL === 0;
+  return (
+    beat >= ENEMY_ATTACK_FIRST_BEAT &&
+    (beat - ENEMY_ATTACK_FIRST_BEAT) % ENEMY_ATTACK_BEAT_INTERVAL === 0
+  );
 }
 
 /**

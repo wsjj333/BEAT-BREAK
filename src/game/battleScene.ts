@@ -11,6 +11,7 @@
 import Phaser from 'phaser';
 import { AudioClock } from '../audio/audioClock';
 import { Metronome, createClickPlayer } from '../audio/metronome';
+import { playTempoReadyCue } from '../audio/sfx';
 import type { BeatResolution, InputOutcome } from '../core/combatSystem';
 import {
   BEATS_PER_BAR,
@@ -19,6 +20,7 @@ import {
   CALIBRATION_OFFSET_MAX_MS,
   CALIBRATION_OFFSET_MIN_MS,
   CALIBRATION_OFFSET_STEP_MS,
+  COMBO_THRESHOLD_TEMPO_UP,
   ENEMY_HP,
   MAX_BEATS,
   PLAYER_HP,
@@ -31,6 +33,13 @@ import { BattleSession, type TempoStatus } from './battleSession';
 
 export const GAME_WIDTH = 960;
 export const GAME_HEIGHT = 540;
+
+/**
+ * 렌더 배율 = devicePixelRatio (Windows 배율 125%면 1.25).
+ * 캔버스 실제 픽셀 = 논리 크기 × 배율, CSS 표시 크기 = 논리 크기 → 1 CSS px = 1 장치 픽셀 대응, 확대 표시 없음.
+ * 카메라 zoom과 텍스트 resolution을 같은 값으로 맞춘다. 게임 좌표는 960×540 논리 좌표 그대로.
+ */
+export const RENDER_SCALE = window.devicePixelRatio > 0 ? window.devicePixelRatio : 1;
 
 /**
  * 시작/재시작 시 beat 0까지의 대기 시간(초). 오디오 예약은 미래 시각만 가능하므로 필요한 기술값.
@@ -98,6 +107,12 @@ export class BattleScene extends Phaser.Scene {
   private bpmText!: Phaser.GameObjects.Text;
   private comboText!: Phaser.GameObjects.Text;
   private tempoText!: Phaser.GameObjects.Text;
+  /** 템포 업 가능 시 큰 강조 / 예약 시 적용 비트 표시 (D-09(c)) */
+  private tempoBanner!: Phaser.GameObjects.Text;
+  private tempoBannerBox!: Phaser.GameObjects.Rectangle;
+  /** 템포 요청 결과(예약/거절 이유) 짧게 표시 */
+  private tempoNote!: Phaser.GameObjects.Text;
+  private prevTempoKind: TempoStatus['kind'] | null = null;
   private beatText!: Phaser.GameObjects.Text;
   private beatBoxes: Phaser.GameObjects.Rectangle[] = [];
   private warnText!: Phaser.GameObjects.Text;
@@ -113,13 +128,12 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.cameras.main.setBackgroundColor(COLOR.bg);
+    // 캔버스는 논리 크기 × RENDER_SCALE 픽셀 → 카메라를 같은 배율로 확대해 논리 좌표 960×540을 그대로 쓴다
+    this.cameras.main.setBackgroundColor(COLOR.bg).setZoom(RENDER_SCALE).centerOn(GAME_WIDTH / 2, GAME_HEIGHT / 2);
     this.buildTitle();
     this.buildBattle();
     this.buildResult();
-    this.offsetText = this.add
-      .text(GAME_WIDTH - 16, GAME_HEIGHT - 16, '', { fontFamily: FONT, fontSize: '16px', color: '#c8ccd4', align: 'right' })
-      .setOrigin(1, 1);
+    this.offsetText = this.text(GAME_WIDTH - 16, GAME_HEIGHT - 16, '', 16, '#c8ccd4').setAlign('right').setOrigin(1, 1);
     this.renderOffset();
     this.setMode('title');
 
@@ -135,7 +149,7 @@ export class BattleScene extends Phaser.Scene {
   // ─── 화면 구성 ───────────────────────────────────────────────────────────
 
   private text(x: number, y: number, s: string, size: number, color = '#e8eaf0'): Phaser.GameObjects.Text {
-    return this.add.text(x, y, s, { fontFamily: FONT, fontSize: `${size}px`, color });
+    return this.add.text(x, y, s, { fontFamily: FONT, fontSize: `${size}px`, color, resolution: RENDER_SCALE });
   }
 
   private buildTitle(): void {
@@ -184,7 +198,11 @@ export class BattleScene extends Phaser.Scene {
       const box = this.add.rectangle(GAME_WIDTH / 2 + (i - 1.5) * 52, boxY, 40, 40, COLOR.beatOff);
       this.beatBoxes.push(box);
     }
-    const boxHint = this.text(GAME_WIDTH / 2, boxY + 30, '마디 첫 박(빨간 테두리) = 적 공격 박자 (beat 0 제외)', 13, '#9aa0aa').setOrigin(0.5, 0);
+    const boxHint = this.text(GAME_WIDTH / 2, boxY + 30, '빨간 테두리 = 적 공격 박자 (마디 마지막 박, 둘째 마디부터)', 13, '#9aa0aa').setOrigin(0.5, 0);
+
+    this.tempoBannerBox = this.add.rectangle(GAME_WIDTH / 2, 132, 300, 46, 0x3a2f00).setStrokeStyle(2, 0xffd34d);
+    this.tempoBanner = this.text(GAME_WIDTH / 2, 132, '', 30, '#ffd34d').setOrigin(0.5).setFontStyle('bold');
+    this.tempoNote = this.text(GAME_WIDTH / 2, 166, '', 18, '#c8ccd4').setOrigin(0.5, 0);
 
     this.warnText = this.text(ex, y + 110, '', 20, '#ffb020').setOrigin(0.5, 0);
     this.judgeText = this.text(GAME_WIDTH / 2, 410, '', 40).setOrigin(0.5);
@@ -205,6 +223,9 @@ export class BattleScene extends Phaser.Scene {
       this.beatText,
       ...this.beatBoxes,
       boxHint,
+      this.tempoBannerBox,
+      this.tempoBanner,
+      this.tempoNote,
       this.warnText,
       this.judgeText,
       this.eventText,
@@ -278,6 +299,8 @@ export class BattleScene extends Phaser.Scene {
     });
     this.metronome.start();
     this.judgeText.setText('');
+    this.tempoNote.setText('');
+    this.prevTempoKind = null;
     this.eventText.setText('');
     this.setMode('playing');
     this.renderOffset();
@@ -362,7 +385,9 @@ export class BattleScene extends Phaser.Scene {
 
     this.bpmText.setText(`${bpm} BPM`);
     this.comboText.setText(`콤보 ${state.combo}`);
-    this.tempoText.setText(this.tempoLabel(session.tempoStatus(nowSec), bpm));
+    const tempo = session.tempoStatus(nowSec);
+    this.tempoText.setText(this.tempoLabel(tempo, bpm, state.combo));
+    this.renderTempoBanner(tempo, bpm);
     this.beatText.setText(beat < 0 ? '준비…' : `beat ${beat} / ${MAX_BEATS - 1}`);
 
     // 비트 표시기: 마디 안 위치, 박 시작 후 BEAT_FLASH_SEC 동안 깜빡임 (오디오 시계 기준)
@@ -384,16 +409,36 @@ export class BattleScene extends Phaser.Scene {
     this.enemyRect.fillColor = preWarn || onAttack ? COLOR.enemyWarn : COLOR.enemy;
   }
 
-  private tempoLabel(s: TempoStatus, bpm: Bpm): string {
+  /**
+   * 템포 업 강조 배너. 가능: "T: TEMPO UP" + 불가→가능 전환 시 효과음 1회. 예약: "beat N부터 120 BPM".
+   * 가능 여부는 BattleSession.tempoStatus(콤보 5 이상 · 대기 없음 · 최대 BPM 아님)를 그대로 쓴다.
+   */
+  private renderTempoBanner(s: TempoStatus, bpm: Bpm): void {
+    if (s.kind === 'available') {
+      this.tempoBanner.setText(`T: TEMPO UP  → ${nextTempo(bpm) ?? bpm}`).setColor('#ffd34d');
+      this.tempoBannerBox.setVisible(true).setStrokeStyle(2, 0xffd34d).setFillStyle(0x3a2f00);
+      if (this.prevTempoKind !== 'available' && this.clock) playTempoReadyCue(this.clock.ctx);
+    } else if (s.kind === 'pending') {
+      this.tempoBanner.setText(`beat ${s.applyAtBeat}부터 ${s.bpm} BPM`).setColor('#6fd3ff');
+      this.tempoBannerBox.setVisible(true).setStrokeStyle(2, 0x6fd3ff).setFillStyle(0x0b2a38);
+    } else {
+      this.tempoBanner.setText('');
+      this.tempoBannerBox.setVisible(false);
+    }
+    this.tempoBannerBox.width = Math.max(260, this.tempoBanner.width + 40);
+    this.prevTempoKind = s.kind;
+  }
+
+  private tempoLabel(s: TempoStatus, bpm: Bpm, combo: number): string {
     switch (s.kind) {
       case 'available':
         return `▶ T: 템포 업 가능 (→ ${nextTempo(bpm) ?? bpm} BPM)`;
       case 'combo_too_low':
-        return `템포 업 불가: 콤보 ${s.need} 필요`;
+        return `템포 업: 콤보 ${combo} / ${s.need}`;
       case 'pending':
         return `템포 업 예약됨: beat ${s.applyAtBeat}부터 ${s.bpm} BPM`;
       case 'at_max':
-        return '최대 BPM';
+        return '최고 템포';
       case 'not_started':
         return '준비…';
       case 'finished':
@@ -453,19 +498,28 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
+  /** 템포 요청 결과를 배너 아래에 짧게 표시 (D-09(c)) */
   private showTempoRequest(r: TempoRequestOutcome): void {
+    let note: string;
+    let color = '#c8ccd4';
     if (r.scheduled) {
-      this.flashEvent(`템포 업 예약: beat ${r.applyAtBeat}부터`);
-      return;
+      const bpm = this.session?.combat.getBpmAtBeat(r.applyAtBeat);
+      note = `beat ${r.applyAtBeat}부터 ${bpm} BPM`;
+      color = '#6fd3ff';
+    } else {
+      const reasons: Record<string, string> = {
+        combo_too_low: `콤보 ${COMBO_THRESHOLD_TEMPO_UP} 필요`,
+        pending: '이미 예약됨',
+        at_max: '최고 템포',
+        not_started: '시작 전',
+        finished: '',
+      };
+      note = reasons[r.reason] ?? r.reason;
+      color = '#ff8a7a';
     }
-    const reasons: Record<string, string> = {
-      combo_too_low: '템포 업 불가: 콤보 부족',
-      at_max: '템포 업 불가: 최대 BPM',
-      pending: '템포 업 이미 예약됨',
-      not_started: '템포 업 불가: 시작 전',
-      finished: '',
-    };
-    this.flashEvent(reasons[r.reason] ?? `템포 업 거절: ${r.reason}`);
+    this.tweens.killTweensOf(this.tempoNote);
+    this.tempoNote.setText(note).setColor(color).setAlpha(1);
+    this.tweens.add({ targets: this.tempoNote, alpha: 0, delay: 900, duration: 400 });
   }
 
   private showResolution(r: BeatResolution): void {

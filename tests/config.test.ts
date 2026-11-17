@@ -1,6 +1,6 @@
 /**
  * tests/config.test.ts
- * config.ts의 v0.3 규칙값 및 헬퍼 함수 검증.
+ * config.ts의 v0.4 규칙값 및 헬퍼 함수 검증.
  * 3.5절 테스트 벡터와 헬퍼 함수의 경계값을 확인한다.
  */
 
@@ -23,6 +23,7 @@ import {
   BPM_DAMAGE_MULTIPLIER,
   TIMING_DAMAGE_MULTIPLIER,
   ENEMY_ATTACK_BEAT_INTERVAL,
+  ENEMY_ATTACK_FIRST_BEAT,
   ENEMY_ATTACK_DAMAGE,
   MAX_BEATS,
   beatDurationSec,
@@ -131,8 +132,9 @@ describe("config — 3.3 공격·적·승패 규칙값", () => {
     expect(TIMING_DAMAGE_MULTIPLIER.MISS).toBe(0);
   });
 
-  it("적 공격 간격 = 4비트, 적 공격 피해 = 1", () => {
+  it("적 공격 간격 = 4비트, 첫 적 공격 = beat 7 (D-09), 적 공격 피해 = 1", () => {
     expect(ENEMY_ATTACK_BEAT_INTERVAL).toBe(4);
+    expect(ENEMY_ATTACK_FIRST_BEAT).toBe(7);
     expect(ENEMY_ATTACK_DAMAGE).toBe(1);
   });
 
@@ -158,18 +160,19 @@ describe("config — beatDurationSec", () => {
 });
 
 describe("config — isEnemyAttackBeat", () => {
-  it("beat 4, 8, 12 → true", () => {
-    expect(isEnemyAttackBeat(4)).toBe(true);
-    expect(isEnemyAttackBeat(8)).toBe(true);
-    expect(isEnemyAttackBeat(12)).toBe(true);
+  // D-09(a): 4k+3 (k≥1)
+  it("beat 7, 11, 15, 119 → true", () => {
+    for (const b of [7, 11, 15, 119]) {
+      expect(isEnemyAttackBeat(b)).toBe(true);
+    }
   });
 
-  it("beat 0 → false (0은 제외)", () => {
-    expect(isEnemyAttackBeat(0)).toBe(false);
+  it("beat 3 → false (첫 마디는 적응 구간)", () => {
+    expect(isEnemyAttackBeat(3)).toBe(false);
   });
 
-  it("beat 1, 2, 3, 5, 6, 7 → false", () => {
-    for (const b of [1, 2, 3, 5, 6, 7]) {
+  it("beat 0, 1, 2, 4, 5, 6, 8, 12 → false (마디 경계 포함)", () => {
+    for (const b of [0, 1, 2, 4, 5, 6, 8, 12]) {
       expect(isEnemyAttackBeat(b)).toBe(false);
     }
   });

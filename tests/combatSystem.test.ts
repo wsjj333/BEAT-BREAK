@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { CombatSystem, computeAttackDamage, type BeatResolution } from '../src/core/combatSystem';
 import type { InputChannel } from '../src/core/rhythmJudge';
+import { isEnemyAttackBeat } from '../src/core/config';
 
 /** beat 시각 + ms 오프셋(초) */
 const at = (c: CombatSystem, beat: number, ms = 0) => c.beatTime(beat) + ms / 1000;
@@ -23,21 +24,20 @@ function resolveThrough(c: CombatSystem, last: number, offsetMs = 0): BeatResolu
   return out;
 }
 
-/** 0, 1, 2, 3, 5, ... 적 공격 비트가 아닌 비트 n개 */
+/** 0, 1, ..., 6, 8, ... 적 공격 비트(7, 11, 15, ... D-09)가 아닌 비트 n개 */
 function normalBeats(n: number): number[] {
   const out: number[] = [];
-  for (let b = 0; out.length < n; b++) if (b === 0 || b % 4 !== 0) out.push(b);
+  for (let b = 0; out.length < n; b++) if (!isEnemyAttackBeat(b)) out.push(b);
   return out;
 }
 
 /**
- * beat 0,1,2,3,5,6 Perfect 공격 + beat 4 회피 Perfect, beat 6까지 확정 → 콤보 6.
- * beat 6 확정은 하지 않을 수 있도록 lastResolve로 조절.
+ * beat 0,1,2,3,5,6 Perfect 공격(beat 4 미입력 → 콤보 유지), beat 6까지 확정 → 콤보 6.
+ * beat 6 확정은 하지 않을 수 있도록 lastResolve로 조절. 첫 적 공격은 beat 7 (D-09).
  */
 function buildCombo(c: CombatSystem, lastResolve: number, offsetMs = 0): void {
   // 보정 시각 = 입력 + 오프셋 → 정박에 맞추려면 입력은 비트 시각 − 오프셋
   for (const b of [0, 1, 2, 3, 5, 6]) c.input(at(c, b, -offsetMs), 'attack');
-  c.input(at(c, 4, -offsetMs), 'dodge');
   resolveThrough(c, lastResolve, offsetMs);
 }
 
@@ -49,38 +49,37 @@ describe('CombatSystem — 3.5 템포 예약 벡터', () => {
 
     expect(c.requestTempoUp(at(c, 6))).toEqual({ scheduled: true, currentBeat: 6, applyAtBeat: 8 });
 
-    c.input(at(c, 7), 'attack');
+    c.input(at(c, 7), 'dodge'); // beat 7 = 적 공격 비트 (D-09)
     c.input(at(c, 9), 'attack');
 
     expect(c.resolveBeat(6, closed(c, 6))).toMatchObject({ bpm: 100, comboResetByTempo: false, state: { combo: 6 } });
 
     const r7 = c.resolveBeat(7, closed(c, 7));
-    expect(r7).toMatchObject({ kind: 'normal', bpm: 100, enemyDamage: 12.5, comboResetByTempo: false, state: { combo: 7 } });
+    expect(r7).toMatchObject({ kind: 'enemy_attack', bpm: 100, dodge: 'perfect', playerDamage: 0, comboResetByTempo: false, state: { combo: 6 } });
     expect(c.beatTime(7)).toBeCloseTo(4.2);
     expect(c.beatTime(8)).toBeCloseTo(4.8);
     expect(c.beatTime(9)).toBeCloseTo(5.3);
 
     const r8 = c.resolveBeat(8, closed(c, 8));
-    expect(r8).toMatchObject({ kind: 'enemy_attack', bpm: 120, comboResetByTempo: true, state: { combo: 0 } });
+    expect(r8).toMatchObject({ kind: 'normal', bpm: 120, attack: 'none', comboResetByTempo: true, state: { combo: 0 } });
 
     const r9 = c.resolveBeat(9, closed(c, 9));
     expect(r9).toMatchObject({ bpm: 120, enemyDamage: 15.625, comboResetByTempo: false, state: { combo: 1 } });
-    // beat 0,1,2,3,5,6,7 × 12.5 + beat 9 × 15.625
-    expect(st(c).enemyHp).toBe(300 - 7 * 12.5 - 15.625);
+    // beat 0,1,2,3,5,6 × 12.5 + beat 9 × 15.625
+    expect(st(c).enemyHp).toBe(300 - 6 * 12.5 - 15.625);
   });
 
   it('템포 적용 비트가 시작됐지만 확정 전이면 콤보는 이미 0 → 추가 요청 combo_too_low', () => {
     const c = new CombatSystem();
     buildCombo(c, 5);
     c.requestTempoUp(at(c, 6));
-    c.input(at(c, 7), 'attack');
-    resolveThrough(c, 7);
-    expect(st(c).combo).toBe(7);
+    resolveThrough(c, 7); // beat 7 적 공격 비트: 콤보 유지
+    expect(st(c).combo).toBe(6);
 
     // beat 8(120BPM 적용) +50ms, resolveBeat(8) 전
     expect(c.requestTempoUp(at(c, 8, 50))).toMatchObject({ scheduled: false, currentBeat: 8, reason: 'combo_too_low' });
     // 리뷰 T4-5#1: 공개 상태도 같은 유효 콤보 → 0. 적용 비트 직전에는 7
-    expect(c.getState(at(c, 8, -1)).combo).toBe(7);
+    expect(c.getState(at(c, 8, -1)).combo).toBe(6);
     expect(c.getState(at(c, 8)).combo).toBe(0);
     expect(c.getState(at(c, 8, 50)).combo).toBe(0);
     expect(c.getBpmAtBeat(12)).toBe(120);
@@ -99,15 +98,15 @@ describe('CombatSystem — 3.5 템포 예약 벡터', () => {
     const c = new CombatSystem();
     buildCombo(c, 6);
 
-    // beat 8 −80ms 회피: 100BPM(±90) 기준 perfect
-    expect(c.input(at(c, 8, -80), 'dodge')).toMatchObject({ kind: 'pending', beat: 8, result: 'perfect' });
+    // beat 8 −80ms 공격: 100BPM(±90) 기준 perfect
+    expect(c.input(at(c, 8, -80), 'attack')).toMatchObject({ kind: 'pending', beat: 8, result: 'perfect' });
 
     // beat 8 Good 윈도우가 열린 뒤 요청 → beat 12로 연기, beat 8은 100BPM 유지
     expect(c.requestTempoUp(at(c, 8, -6))).toEqual({ scheduled: true, currentBeat: 7, applyAtBeat: 12 });
     expect(c.getBpmAtBeat(8)).toBe(100);
 
     c.resolveBeat(7, closed(c, 7));
-    expect(c.resolveBeat(8, closed(c, 8))).toMatchObject({ bpm: 100, dodge: 'perfect', playerDamage: 0, comboResetByTempo: false });
+    expect(c.resolveBeat(8, closed(c, 8))).toMatchObject({ bpm: 100, attack: 'perfect', enemyDamage: 12.5, comboResetByTempo: false });
   });
 
   /**
@@ -150,40 +149,48 @@ describe('CombatSystem — 3.5 회피 벡터 (D-01)', () => {
   ];
 
   for (const [name, ms, dodge, dmg] of cases) {
-    it(`beat 4 ${name} → 피해 ${dmg}, 콤보 유지`, () => {
+    it(`beat 7 ${name} → 피해 ${dmg}, 콤보 유지`, () => {
       const c = new CombatSystem();
       for (const b of [0, 1, 2]) c.input(at(c, b), 'attack');
-      if (ms !== null) c.input(at(c, 4, ms), 'dodge');
-      resolveThrough(c, 3);
+      if (ms !== null) c.input(at(c, 7, ms), 'dodge');
+      resolveThrough(c, 6);
       expect(st(c).combo).toBe(3);
 
-      expect(c.resolveBeat(4, closed(c, 4))).toMatchObject({ kind: 'enemy_attack', dodge, playerDamage: dmg, state: { playerHp: 5 - dmg, combo: 3 } });
+      expect(c.resolveBeat(7, closed(c, 7))).toMatchObject({ kind: 'enemy_attack', dodge, playerDamage: dmg, state: { playerHp: 5 - dmg, combo: 3 } });
     });
   }
 
   it('회피 Miss(+200ms)도 피해 1', () => {
     const c = new CombatSystem();
-    c.input(at(c, 4, 200), 'dodge');
-    resolveThrough(c, 3);
-    expect(c.resolveBeat(4, closed(c, 4))).toMatchObject({ dodge: 'miss', playerDamage: 1 });
+    c.input(at(c, 7, 200), 'dodge');
+    resolveThrough(c, 6);
+    expect(c.resolveBeat(7, closed(c, 7))).toMatchObject({ dodge: 'miss', playerDamage: 1 });
   });
 
   it('회피는 비트당 최초 1회: Good 후 Perfect 재입력은 duplicate → 피해 1', () => {
     const c = new CombatSystem();
-    c.input(at(c, 4, 100), 'dodge');
-    expect(c.input(at(c, 4), 'dodge')).toEqual({ kind: 'duplicate_ignored', beat: 4 });
-    resolveThrough(c, 3);
-    expect(c.resolveBeat(4, closed(c, 4))).toMatchObject({ dodge: 'good', playerDamage: 1 });
+    c.input(at(c, 7, 100), 'dodge');
+    expect(c.input(at(c, 7), 'dodge')).toEqual({ kind: 'duplicate_ignored', beat: 7 });
+    resolveThrough(c, 6);
+    expect(c.resolveBeat(7, closed(c, 7))).toMatchObject({ dodge: 'good', playerDamage: 1 });
   });
 
   it('적 공격 비트에서 공격 입력 → attack_ignored_dodge_beat, 적 HP·콤보 변화 없음', () => {
     const c = new CombatSystem();
     for (const b of [0, 1]) c.input(at(c, b), 'attack');
-    expect(c.input(at(c, 4), 'attack')).toMatchObject({ kind: 'attack_ignored_dodge_beat', beat: 4 });
-    resolveThrough(c, 3);
-    const r4 = c.resolveBeat(4, closed(c, 4));
-    expect(r4).toMatchObject({ kind: 'enemy_attack', dodge: 'none', playerDamage: 1 });
-    expect(r4.kind !== 'ignored_finished' && r4.state).toMatchObject({ enemyHp: 300 - 2 * 12.5, combo: 2 });
+    expect(c.input(at(c, 7), 'attack')).toMatchObject({ kind: 'attack_ignored_dodge_beat', beat: 7 });
+    resolveThrough(c, 6);
+    const r7 = c.resolveBeat(7, closed(c, 7));
+    expect(r7).toMatchObject({ kind: 'enemy_attack', dodge: 'none', playerDamage: 1 });
+    expect(r7.kind !== 'ignored_finished' && r7.state).toMatchObject({ enemyHp: 300 - 2 * 12.5, combo: 2 });
+  });
+
+  it('적 공격 비트 = beat 7, 11, 15, ... (4k+3, k≥1). beat 3·4·8은 일반 비트 (D-09)', () => {
+    const c = new CombatSystem();
+    expect(c.input(at(c, 3), 'dodge')).toMatchObject({ kind: 'dodge_no_effect', beat: 3 });
+    expect(c.input(at(c, 4), 'attack')).toMatchObject({ kind: 'pending', beat: 4 });
+    const kinds = resolveThrough(new CombatSystem(), 15).map((r) => r.kind);
+    expect(kinds.flatMap((k, b) => (k === 'enemy_attack' ? [b] : []))).toEqual([7, 11, 15]);
   });
 
   it('일반 비트에서 회피 입력 → dodge_no_effect, 상태 변화 없음', () => {
@@ -243,12 +250,12 @@ describe('CombatSystem — 입력 순서 무관 확정 (3.3)', () => {
     [2, -120, 'attack'], // good
     [2, 50, 'dodge'], // 일반 비트 회피 → 효과 없음
     [3, 200, 'attack'], // miss
-    [4, 10, 'attack'], // 적 공격 비트 → 무시
-    [4, -40, 'dodge'], // perfect
+    [7, 10, 'attack'], // 적 공격 비트 → 무시
+    [7, -40, 'dodge'], // perfect
     [5, 100, 'attack'], // good
     [6, -10, 'attack'],
-    [8, 95, 'dodge'], // good → 피해 1
-    [8, -30, 'attack'],
+    [11, 95, 'dodge'], // good → 피해 1
+    [11, -30, 'attack'], // 적 공격 비트 → 무시
   ];
 
   function run(order: number[]): { results: BeatResolution[]; state: ReturnType<CombatSystem['getState']> } {
@@ -257,7 +264,7 @@ describe('CombatSystem — 입력 순서 무관 확정 (3.3)', () => {
       const [beat, ms, ch] = inputs[i];
       c.input(at(c, beat, ms), ch);
     }
-    const results = resolveThrough(c, 9);
+    const results = resolveThrough(c, 12);
     return { results, state: st(c) };
   }
 
@@ -268,7 +275,7 @@ describe('CombatSystem — 입력 순서 무관 확정 (3.3)', () => {
 
     expect(reverse).toEqual(forward);
     expect(shuffled).toEqual(forward);
-    // 기대값 고정: 공격 1(P) 2(G) 3(M) 5(G) 6(P), 회피 4(P) 8(G)
+    // 기대값 고정: 공격 1(P) 2(G) 3(M) 5(G) 6(P), 회피 7(P) 11(G)
     expect(forward.state).toMatchObject({
       enemyHp: 300 - 12.5 - 10 - 0 - 10 - 12.5,
       playerHp: 4,
@@ -358,11 +365,11 @@ describe('CombatSystem — 입력 순서 무관 확정 (3.3)', () => {
 });
 
 describe('CombatSystem — 승패 (3.3)', () => {
-  it('회피 없이 적 공격 5회 → beat 20에서 플레이어 HP 0 패배', () => {
+  it('회피 없이 적 공격 5회(beat 7, 11, 15, 19, 23) → beat 23에서 플레이어 HP 0 패배', () => {
     const c = new CombatSystem();
-    resolveThrough(c, 19);
+    resolveThrough(c, 22);
     expect(st(c)).toMatchObject({ playerHp: 1, status: { phase: 'playing' } });
-    expect(c.resolveBeat(20, closed(c, 20))).toMatchObject({ playerDamage: 1, state: { playerHp: 0, status: { phase: 'defeat', cause: 'player_hp' } } });
+    expect(c.resolveBeat(23, closed(c, 23))).toMatchObject({ playerDamage: 1, state: { playerHp: 0, status: { phase: 'defeat', cause: 'player_hp' } } });
   });
 
   it('적 HP는 0 아래로 내려가지 않음 → 승리', () => {
@@ -372,7 +379,7 @@ describe('CombatSystem — 승패 (3.3)', () => {
     c.input(at(c, beats[23], 100), 'attack'); // good 10 → 2.5 남음
     c.input(at(c, beats[24]), 'attack'); // perfect 12.5 → 0 (−10 아님)
     // 회피도 전부 Perfect로 넣어 플레이어 HP 유지
-    for (let b = 4; b <= beats[24]; b += 4) c.input(at(c, b), 'dodge');
+    for (let b = 7; b <= beats[24]; b += 4) c.input(at(c, b), 'dodge');
 
     resolveThrough(c, beats[23]);
     expect(st(c)).toMatchObject({ enemyHp: 2.5, status: { phase: 'playing' } });
@@ -380,36 +387,47 @@ describe('CombatSystem — 승패 (3.3)', () => {
     expect(st(c)).toMatchObject({ enemyHp: 0, playerHp: 5, status: { phase: 'victory' } });
   });
 
-  it('120비트(beat 0~119)까지 승부가 안 나면 timeout 패배', () => {
+  it('120비트(beat 0~119)까지 승부가 안 나면 timeout 패배 (beat 119 = 적 공격 비트, 회피 성공)', () => {
     const c = new CombatSystem();
-    for (let b = 4; b < 120; b += 4) c.input(at(c, b), 'dodge');
+    for (let b = 7; b < 120; b += 4) c.input(at(c, b), 'dodge');
     resolveThrough(c, 118);
     expect(st(c)).toMatchObject({ playerHp: 5, enemyHp: 300, status: { phase: 'playing' } });
     expect(c.resolveBeat(119, closed(c, 119))).toMatchObject({ state: { status: { phase: 'defeat', cause: 'timeout' } } });
   });
 
-  it('beat 119에서 적 HP 0이면 timeout이 아닌 승리', () => {
+  it('마지막 일반 비트(beat 118)에서 적 HP 0이면 승리 (D-09: beat 119는 적 공격 비트)', () => {
     const c = new CombatSystem({ initialBpm: 140 }); // 18.75 × 16 = 300
     const beats = normalBeats(91);
     const last16 = beats.slice(-16);
-    expect(last16[15]).toBe(119);
+    expect(last16[15]).toBe(118);
     last16.forEach((b) => c.input(at(c, b), 'attack'));
-    for (let b = 4; b < 120; b += 4) c.input(at(c, b), 'dodge');
-    resolveThrough(c, 119);
+    for (let b = 7; b < 120; b += 4) c.input(at(c, b), 'dodge');
+    resolveThrough(c, 118);
     expect(st(c).status).toEqual({ phase: 'victory' });
+  });
+
+  it('beat 119(적 공격 비트)에서 플레이어 HP 0이면 timeout이 아닌 player_hp 패배', () => {
+    const c = new CombatSystem();
+    // beat 7~99 회피 성공, beat 103·107·111·115·119 미회피 → 5번째 피격이 beat 119
+    for (let b = 7; b <= 99; b += 4) c.input(at(c, b), 'dodge');
+    resolveThrough(c, 118);
+    expect(st(c)).toMatchObject({ playerHp: 1, status: { phase: 'playing' } });
+    expect(c.resolveBeat(119, closed(c, 119))).toMatchObject({
+      state: { playerHp: 0, status: { phase: 'defeat', cause: 'player_hp' } },
+    });
   });
 
   describe('확정 후 입력·비트 진행·템포 요청이 상태를 바꾸지 않음', () => {
     function finishedByDefeat(): CombatSystem {
       const c = new CombatSystem();
-      for (const b of [0, 1, 2, 3, 5, 6, 7]) c.input(at(c, b), 'attack');
-      resolveThrough(c, 20);
+      for (const b of [0, 1, 2, 3, 4, 5, 6]) c.input(at(c, b), 'attack');
+      resolveThrough(c, 23);
       return c;
     }
 
     function finishedByTimeout(): CombatSystem {
       const c = new CombatSystem();
-      for (let b = 4; b < 120; b += 4) c.input(at(c, b), 'dodge');
+      for (let b = 7; b < 120; b += 4) c.input(at(c, b), 'dodge');
       resolveThrough(c, 119);
       return c;
     }

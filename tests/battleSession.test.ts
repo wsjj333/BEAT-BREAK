@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BattleSession } from '../src/game/battleSession';
-import { RESOLVE_MARGIN_MS } from '../src/core/config';
+import { RESOLVE_MARGIN_MS, isEnemyAttackBeat } from '../src/core/config';
 
 const mk = (calibrationOffsetMs = 0) =>
   new BattleSession({ calibrationOffsetMs, runId: 'test', startedAt: '2026-11-17T00:00:00.000Z' });
@@ -39,9 +39,9 @@ describe('BattleSession.update — 확정 타이밍 (D-08)', () => {
 
   it.each([-200, -50, 50, 200])('오프셋 %ims에서도 resolveBeat 가드에 걸리지 않는다', (off) => {
     const s = mk(off);
-    // 미입력 → beat 20에서 HP 0 패배까지 매 프레임 확정 (가드 위반 시 RangeError로 실패)
+    // 미입력 → beat 23에서 HP 0 패배까지 매 프레임 확정 (가드 위반 시 RangeError로 실패)
     for (let t = -1; t < 30; t += 0.016) s.update(t);
-    expect(s.finishedRecord?.lastResolvedBeat).toBe(20);
+    expect(s.finishedRecord?.lastResolvedBeat).toBe(23);
   });
 
   it('오프셋은 보정 시각 기준: +100ms면 100ms 일찍 확정', () => {
@@ -52,7 +52,7 @@ describe('BattleSession.update — 확정 타이밍 (D-08)', () => {
 });
 
 describe('BattleSession — 승패와 기록', () => {
-  it('미입력이면 적 공격 5회 피격 후 beat 20에서 패배, 기록 1회 생성', () => {
+  it('미입력이면 적 공격 5회 피격 후 beat 23에서 패배, 기록 1회 생성', () => {
     const s = mk();
     let t = 0;
     while (!s.finishedRecord && t < 80) {
@@ -62,7 +62,7 @@ describe('BattleSession — 승패와 기록', () => {
     const rec = s.finishedRecord!;
     expect(rec.outcome).toBe('defeat');
     expect(rec.cause).toBe('player_hp');
-    expect(rec.lastResolvedBeat).toBe(20);
+    expect(rec.lastResolvedBeat).toBe(23);
     expect(rec.summary.hitsTaken).toBe(5);
     expect(rec.summary.enemyAttacks).toBe(5);
     expect(rec.summary.hitRate).toBe(1);
@@ -79,7 +79,7 @@ describe('BattleSession — 승패와 기록', () => {
       // 각 비트 정각에 입력
       const beatT = s.combat.beatTime(beat);
       if (t >= beatT) {
-        s.input(beatT, beat > 0 && beat % 4 === 0 ? 'dodge' : 'attack');
+        s.input(beatT, isEnemyAttackBeat(beat) ? 'dodge' : 'attack');
         beat++;
       }
       s.update(t);
@@ -93,7 +93,7 @@ describe('BattleSession — 승패와 기록', () => {
 });
 
 describe('BattleSession — 템포 업', () => {
-  /** beat 0,1,2,3,5,6 Perfect → 콤보 5 (beat 4는 회피 비트) */
+  /** beat 0,1,2,3,5 Perfect → 콤보 5 (beat 4 미입력, 첫 적 공격은 beat 7) */
   function comboFive() {
     const s = mk();
     for (const b of [0, 1, 2, 3, 5]) s.input(t100(b), 'attack');
