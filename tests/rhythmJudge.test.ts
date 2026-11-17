@@ -1,0 +1,155 @@
+import { describe, it, expect } from 'vitest';
+import { BeatTimeline } from '../src/core/beatTimeline';
+import { RhythmJudge } from '../src/core/rhythmJudge';
+import type { Bpm } from '../src/core/config';
+
+/** 기대값은 config가 아닌 기획서 3.5의 숫자를 그대로 적는다 (입력→결과 검증) */
+const VECTORS: Array<{ bpm: Bpm; beatSec: number; cases: Array<[number, string]> }> = [
+  {
+    bpm: 100,
+    beatSec: 0.6,
+    cases: [[90, 'perfect'], [91, 'good'], [160, 'good'], [161, 'miss']],
+  },
+  {
+    bpm: 120,
+    beatSec: 0.5,
+    cases: [[75, 'perfect'], [76, 'good'], [135, 'good'], [136, 'miss']],
+  },
+  {
+    bpm: 140,
+    beatSec: 60 / 140,
+    cases: [[60, 'perfect'], [61, 'good'], [110, 'good'], [111, 'miss']],
+  },
+];
+
+describe('RhythmJudge — 3.5 판정 벡터', () => {
+  for (const { bpm, beatSec, cases } of VECTORS) {
+    for (const [ms, expected] of cases) {
+      for (const sign of [1, -1]) {
+        const signed = sign * ms;
+
+        it(`${bpm}BPM beat 0 기준 ${signed > 0 ? '+' : ''}${signed}ms → ${expected}`, () => {
+          const judge = new RhythmJudge(new BeatTimeline(bpm));
+          const r = judge.judge(signed / 1000, 'attack');
+          expect(r).toMatchObject({ beat: 0, result: expected });
+          if (r.result !== 'duplicate_ignored') expect(r.errorMs).toBeCloseTo(signed);
+        });
+
+        // beat 0 음수 쪽은 t<0 경로이므로, 일반 경로를 beat 1에서도 확인
+        it(`${bpm}BPM beat 1 기준 ${signed > 0 ? '+' : ''}${signed}ms → ${expected}`, () => {
+          const judge = new RhythmJudge(new BeatTimeline(bpm));
+          const r = judge.judge(beatSec + signed / 1000, 'attack');
+          expect(r).toMatchObject({ beat: 1, result: expected });
+          if (r.result !== 'duplicate_ignored') expect(r.errorMs).toBeCloseTo(signed);
+        });
+      }
+    }
+  }
+});
+
+describe('RhythmJudge — 비트당 1회 판정', () => {
+  it('같은 비트 첫 Miss 후 Perfect → duplicate_ignored', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    // beat 2 = 1.2s
+    expect(judge.judge(1.2 + 0.2, 'attack')).toMatchObject({ beat: 2, result: 'miss' });
+    expect(judge.judge(1.2, 'attack')).toEqual({ beat: 2, result: 'duplicate_ignored' });
+  });
+
+  it('첫 Perfect 후 재입력도 duplicate_ignored', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    expect(judge.judge(1.2, 'attack')).toMatchObject({ beat: 2, result: 'perfect' });
+    expect(judge.judge(1.21, 'attack')).toEqual({ beat: 2, result: 'duplicate_ignored' });
+  });
+
+  it('다른 비트는 영향 없음', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    judge.judge(1.2, 'attack');
+    expect(judge.judge(1.8, 'attack')).toMatchObject({ beat: 3, result: 'perfect' });
+  });
+
+  it('attack과 dodge는 독립 — 같은 비트에 각각 1회씩 판정', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    expect(judge.judge(1.2 + 0.2, 'attack')).toMatchObject({ beat: 2, result: 'miss' });
+    expect(judge.judge(1.2 + 0.1, 'dodge')).toMatchObject({ beat: 2, result: 'good' });
+    expect(judge.judge(1.2, 'attack')).toEqual({ beat: 2, result: 'duplicate_ignored' });
+    expect(judge.judge(1.2, 'dodge')).toEqual({ beat: 2, result: 'duplicate_ignored' });
+  });
+});
+
+describe('RhythmJudge — 템포 경계', () => {
+  // 100BPM에서 beat 6에 120 요청 → beat 8 (4.8s)부터 120BPM
+  const setup = () => {
+    const tl = new BeatTimeline(100);
+    tl.requestTempo(120, 6);
+    return new RhythmJudge(tl);
+  };
+
+  it('beat 8 +76ms → good (120BPM 윈도우; 100BPM이면 perfect)', () => {
+    expect(setup().judge(4.8 + 0.076, 'attack')).toMatchObject({ beat: 8, result: 'good' });
+  });
+
+  it('beat 8 -76ms → good', () => {
+    expect(setup().judge(4.8 - 0.076, 'attack')).toMatchObject({ beat: 8, result: 'good' });
+  });
+
+  it('beat 8 +136ms → miss (100BPM이면 good)', () => {
+    expect(setup().judge(4.8 + 0.136, 'attack')).toMatchObject({ beat: 8, result: 'miss' });
+  });
+
+  it('beat 8 ±75ms → perfect', () => {
+    const judge = setup();
+    expect(judge.judge(4.8 + 0.075, 'attack')).toMatchObject({ beat: 8, result: 'perfect' });
+    expect(judge.judge(4.8 - 0.075, 'dodge')).toMatchObject({ beat: 8, result: 'perfect' });
+  });
+
+  it('beat 7은 기존 100BPM 윈도우 유지 (+90 perfect, -91 good)', () => {
+    expect(setup().judge(4.2 + 0.09, 'attack')).toMatchObject({ beat: 7, result: 'perfect' });
+    expect(setup().judge(4.2 - 0.091, 'attack')).toMatchObject({ beat: 7, result: 'good' });
+  });
+});
+
+describe('RhythmJudge — 캘리브레이션 오프셋', () => {
+  it('기본값 0ms', () => {
+    expect(new RhythmJudge(new BeatTimeline(100)).getCalibrationOffset()).toBe(0);
+  });
+
+  it('+50ms: beat 2 -50ms 입력 → 보정 후 0ms, perfect', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100), 50);
+    const r = judge.judge(1.2 - 0.05, 'attack');
+    expect(r).toMatchObject({ beat: 2, result: 'perfect' });
+    if (r.result !== 'duplicate_ignored') expect(r.errorMs).toBeCloseTo(0);
+  });
+
+  it('+50ms: beat 2 +41ms 입력 → 보정 후 +91ms, good (오프셋 0이면 perfect)', () => {
+    const withOffset = new RhythmJudge(new BeatTimeline(100), 50);
+    const without = new RhythmJudge(new BeatTimeline(100));
+    expect(withOffset.judge(1.2 + 0.041, 'attack')).toMatchObject({ beat: 2, result: 'good' });
+    expect(without.judge(1.2 + 0.041, 'attack')).toMatchObject({ beat: 2, result: 'perfect' });
+  });
+
+  it('+50ms: beat 2 -211ms 입력 → 보정 후 errorMs -161ms, miss', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100), 50);
+    const r = judge.judge(1.2 - 0.211, 'attack');
+    expect(r).toMatchObject({ beat: 2, result: 'miss' });
+    if (r.result !== 'duplicate_ignored') expect(r.errorMs).toBeCloseTo(-161);
+  });
+
+  it('setCalibrationOffset로 변경 후 판정 이동', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    judge.setCalibrationOffset(50);
+    expect(judge.judge(1.2 + 0.041, 'attack')).toMatchObject({ beat: 2, result: 'good' });
+  });
+
+  it('범위 경계 -200, +200 허용', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    expect(() => judge.setCalibrationOffset(-200)).not.toThrow();
+    expect(() => judge.setCalibrationOffset(200)).not.toThrow();
+  });
+
+  it.each([-210, 210, 55, 5, -1, 0.5, NaN, Infinity])('잘못된 오프셋 %s → RangeError', (ms) => {
+    expect(() => new RhythmJudge(new BeatTimeline(100), ms)).toThrow(RangeError);
+    const judge = new RhythmJudge(new BeatTimeline(100), 30);
+    expect(() => judge.setCalibrationOffset(ms)).toThrow(RangeError);
+    expect(judge.getCalibrationOffset()).toBe(30); // 거부 시 기존 값 유지
+  });
+});
