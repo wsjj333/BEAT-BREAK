@@ -4,7 +4,7 @@
  * Phaser/DOM/Web Audio 직접 참조 금지. 시간은 인자로 주입한다.
  *
  * 입력은 즉시 판정(시각 피드백용)하되 상태는 바꾸지 않고 버퍼에 담는다.
- * 최종 HP·콤보 반영은 resolveBeat(beat)에서만 한다 → 입력 도착 순서와 무관 (3.3).
+ * 최종 HP·콤보 반영은 resolveBeat(beat, nowSec)에서만 한다 → 입력 도착 순서와 무관 (3.3).
  */
 
 import { BeatTimeline } from './beatTimeline';
@@ -16,7 +16,9 @@ import {
   CALIBRATION_OFFSET_DEFAULT_MS,
   ENEMY_ATTACK_DAMAGE,
   ENEMY_HP,
+  GOOD_WINDOW_MS,
   INITIAL_BPM,
+  JUDGE_EPS_MS,
   MAX_BEATS,
   PLAYER_HP,
   TIMING_DAMAGE_MULTIPLIER,
@@ -122,11 +124,22 @@ export class CombatSystem {
 
   // ─── 읽기 전용 조회 ────────────────────────────────────────────────────
 
-  getState(): CombatState {
+  /**
+   * 현재 전투 상태. combo는 템포 요청 자격과 같은 유효 콤보다 (리뷰 T4-5#1):
+   * 템포 적용 비트가 시작됐지만 아직 확정 전이면 0.
+   * 승패 확정 후에는 시각과 무관하게 확정 시점 값을 반환한다.
+   * @param nowSec 오디오 시계 기준 현재 시각(초). 음수(beat 0 이전)는 beat 0으로 본다:
+   *   양의 캘리브레이션 오프셋이면 beat 0 확정이 입력 시간축 음수 시각에 가능하다.
+   *   NaN/Infinity는 RangeError.
+   */
+  getState(nowSec: number): CombatState {
+    const combo = this.isFinished()
+      ? this.combo.value
+      : this.effectiveCombo(this.timeline.currentBeatAt(Math.max(0, nowSec)));
     return {
       playerHp: this.playerHp,
       enemyHp: this.enemyHp,
-      combo: this.combo.value,
+      combo,
       lastResolvedBeat: this.lastResolvedBeat,
       status: { ...this.status },
     };
@@ -185,17 +198,28 @@ export class CombatSystem {
   // ─── 비트 확정 ─────────────────────────────────────────────────────────
 
   /**
-   * 비트 결과를 확정한다. 호출자는 해당 비트의 Good 윈도우가 닫힌 뒤
-   * (입력 지연·캘리브레이션 오프셋 고려) 0, 1, 2, ... 순서로 호출해야 한다.
-   * 순서가 어긋나면 RangeError.
+   * 비트 결과를 확정한다. 0, 1, 2, ... 순서로 호출해야 하며, 순서가 어긋나면 RangeError.
+   * 보정 시각(nowSec + 캘리브레이션 오프셋) 기준으로 해당 비트의 Good 윈도우가
+   * 닫히기 전(경계 포함)이면 RangeError (리뷰 T4-5#2). 입력 지연 여유는 호출자가 더한다.
+   * @param nowSec 오디오 시계 기준 현재 시각(초)
    */
-  resolveBeat(beat: number): BeatResolution {
+  resolveBeat(beat: number, nowSec: number): BeatResolution {
     if (this.isFinished()) return { kind: 'ignored_finished', beat };
     if (beat !== this.lastResolvedBeat + 1) {
       throw new RangeError(`resolveBeat out of order: expected ${this.lastResolvedBeat + 1}, got ${beat}`);
     }
+    if (!Number.isFinite(nowSec)) {
+      throw new RangeError(`Invalid time: ${nowSec}`);
+    }
 
     const bpm = this.timeline.getBpmAtBeat(beat);
+    // Good 윈도우는 경계 포함(<=, D-06)이므로 window + EPS를 넘어야 닫힌 것이다
+    const correctedNowSec = nowSec + this.judge.getCalibrationOffset() / 1000;
+    const msAfterBeat = (correctedNowSec - this.timeline.beatTime(beat)) * 1000;
+    if (msAfterBeat <= GOOD_WINDOW_MS[bpm] + JUDGE_EPS_MS) {
+      throw new RangeError(`resolveBeat(${beat}) before Good window closed: +${msAfterBeat}ms`);
+    }
+
     const slot = this.pending.get(beat) ?? {};
     this.pending.delete(beat);
     this.lastResolvedBeat = beat;
@@ -211,7 +235,7 @@ export class CombatSystem {
       this.playerHp = Math.max(0, this.playerHp - playerDamage);
       if (this.playerHp === 0) this.status = { phase: 'defeat', cause: 'player_hp' };
       this.checkTimeout(beat);
-      return { kind: 'enemy_attack', beat, bpm, comboResetByTempo, dodge, playerDamage, state: this.getState() };
+      return { kind: 'enemy_attack', beat, bpm, comboResetByTempo, dodge, playerDamage, state: this.getState(nowSec) };
     }
 
     // 일반 비트 → 공격 판정 → 적 HP 검사. 미입력은 효과 없음 (3.1)
@@ -224,7 +248,7 @@ export class CombatSystem {
       if (this.enemyHp === 0) this.status = { phase: 'victory' };
     }
     this.checkTimeout(beat);
-    return { kind: 'normal', beat, bpm, comboResetByTempo, attack, enemyDamage, state: this.getState() };
+    return { kind: 'normal', beat, bpm, comboResetByTempo, attack, enemyDamage, state: this.getState(nowSec) };
   }
 
   // ─── 내부 ──────────────────────────────────────────────────────────────

@@ -71,9 +71,29 @@
 
 ---
 
+## Task 04-05 — ComboSystem, TempoSystem, CombatSystem (2026-11-17)
+
+리뷰 대상: `src/core/{beatTimeline,comboSystem,tempoSystem,combatSystem}.ts`, `tests/{beatTimeline,comboSystem,tempoSystem,combatSystem}.test.ts`, `docs/decisions.md`, `docs/review-log.md` (커밋 `fbc214c`)
+리뷰 원문: `docs/reviews/task-04-05-review.md`
+
+| # | 심각도 | 지적 | 판단 | 이유 |
+|---|---|---|---|---|
+| 1 | Med | 템포 적용 후 getState().combo가 이전 콤보 반환 | 반영 | 태스크 6 UI에서 콤보 표시와 템포 업 자격이 불일치. getState가 effectiveCombo 사용 |
+| 2 | Med | resolveBeat가 윈도우 종료를 검증하지 않음 | 반영 | resolveBeat(beat, nowSec)로 변경. 보정 시각 기준 Good 윈도우 종료 전이면 RangeError. 태스크 6 호출 타이밍 실수를 즉시 드러냄 |
+| 3 | Low | BeatTimeline.requestTempo 공개 API 우회 가능 | 보류 | TS에 패키지 단위 접근 제어 없음. 호출처 1곳 검사 테스트로 위험 수용 |
+| 4 | Low | 같은 비트·채널 경쟁 입력 순서 테스트 없음 | 보류 | 최초 입력 우선이 정상 동작. 일정상 후순위 |
+
+조치 (`src/core/combatSystem.ts`, `tests/combatSystem.test.ts`):
+- #1: `getState()` → `getState(nowSec)`. combo는 `effectiveCombo(currentBeatAt(nowSec))`(템포 요청 자격과 동일). 승패 확정 후에는 시각과 무관하게 확정 시점 값. 음수 nowSec는 beat 0으로 본다(오프셋 +200ms면 beat 0 확정이 입력 시간축 −39ms에 가능하므로). 테스트: 적용 비트 1ms 전 콤보 7, 적용 비트 정각·+50ms 콤보 0.
+- #2: `resolveBeat(beat)` → `resolveBeat(beat, nowSec)`. 보정 시각이 `beatTime + Good(해당 비트 BPM) + JUDGE_EPS_MS` 이하이면 RangeError(Good 경계 포함이므로). 테스트: 100BPM +160ms 거부·+160.01ms 허용, 140BPM +110/+111ms, 템포 적용 비트(120BPM) +135/+136ms, 오프셋 −50ms +210/+211ms, 오프셋 +200ms −40/−39ms, 거부 후 도착한 Perfect 입력 정상 반영, NaN 거부.
+
+---
+
 | 출처 | 내용 | 해결 예정 | 상태 |
 |---|---|---|---|
 | T1#2 | 판정 테스트를 입력→결과로 검증 | 태스크 3 | 해결 (06522d6) |
 | T1#3 | duplicate 테스트 | 태스크 3 | 해결 (06522d6) |
-| T1#3 | 템포 적용 시 콤보 리셋, 회피 HP, timeout 테스트 | 태스크 4~5 | 구현됨, 커밋·리뷰 대기 (`tests/combatSystem.test.ts`) |
-| T2#2 | 미래 비트 예약 차단 (D-05) | 태스크 4 | 구현됨, 커밋·리뷰 대기 (`TempoSystem.requestTempoUp(nowSec)`, D-07a) |
+| T1#3 | 템포 적용 시 콤보 리셋, 회피 HP, timeout 테스트 | 태스크 4~5 | 해결 (fbc214c) |
+| T2#2 | 미래 비트 예약 차단 (D-05) | 태스크 4 | 해결 (fbc214c) |
+| T4-5#3 | BeatTimeline.requestTempo 공개 API 우회 가능 | 미정 | 보류 (호출처 1곳 검사 테스트로 위험 수용) |
+| T4-5#4 | 같은 비트·채널 경쟁 입력 순서 테스트 | 미정 | 보류 (일정상 후순위) |
