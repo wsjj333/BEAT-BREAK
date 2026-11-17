@@ -5,6 +5,7 @@
  */
 
 import {
+  BEATS_PER_BAR,
   type Bpm,
   INITIAL_BPM,
   MAX_BPM,
@@ -66,12 +67,32 @@ export class BeatTimeline {
   }
 
   /**
+   * 시각 t에 이미 시작된 가장 최근 비트 번호(현재 비트)를 반환한다. D-05/D-07 참조.
+   * nearestBeat와 달리 반올림하지 않는다 → 반환 비트는 항상 t 이전(또는 같은) 시각이다.
+   * 비트 시각과의 부동소수점 오차는 MIDPOINT_EPS_SEC로 흡수한다.
+   */
+  currentBeatAt(t: number): number {
+    if (!Number.isFinite(t) || t < 0) {
+      throw new RangeError(`Invalid time: ${t}`);
+    }
+    const seg = this.segmentForTime(t);
+    let beat = seg.startBeat + Math.floor((t - seg.startTime) / beatDurationSec(seg.bpm));
+    if (this.beatTime(beat + 1) - t <= MIDPOINT_EPS_SEC) beat += 1;
+    else if (this.beatTime(beat) - t > MIDPOINT_EPS_SEC) beat -= 1;
+    return beat;
+  }
+
+  /**
    * 템포 변경을 예약한다.
+   * D-05: TempoSystem 전용. 다른 모듈은 호출하지 않는다 (tests/tempoSystem.test.ts 구조 테스트).
    * 거절 사유 우선순위: at_max → pending → invalid_step
+   * @param deferOneBar true면 다음 마디 경계가 아닌 그다음 경계에 적용 (D-07b).
+   *   대기 중 판정(pending)은 항상 실제 currentBeat 기준이다.
    */
   requestTempo(
     bpm: Bpm,
     currentBeat: number,
+    deferOneBar = false,
   ):
     | { scheduled: false; reason: string }
     | { scheduled: true; applyAtBeat: number } {
@@ -94,7 +115,7 @@ export class BeatTimeline {
       return { scheduled: false, reason: 'invalid_step' };
     }
 
-    const applyAtBeat = nextBarBoundary(currentBeat);
+    const applyAtBeat = nextBarBoundary(currentBeat) + (deferOneBar ? BEATS_PER_BAR : 0);
     const applyAtTime = this.beatTime(applyAtBeat);
 
     this.segments.push({

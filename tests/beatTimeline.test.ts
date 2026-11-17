@@ -217,3 +217,29 @@ describe('BeatTimeline', () => {
     expect(result.beat).toBe(3);
   });
 });
+
+describe('BeatTimeline.currentBeatAt (D-05/D-07)', () => {
+  it('각 비트 시각 정각 → 그 비트 (부동소수점 오차 흡수), 템포 전환 전후 포함', () => {
+    const tl = new BeatTimeline(100);
+    tl.requestTempo(120, 6); // beat 8부터 120
+    for (let b = 0; b <= 40; b++) {
+      expect(tl.currentBeatAt(tl.beatTime(b))).toBe(b);
+    }
+  });
+
+  it('반올림하지 않음: 다음 비트 1ms 전 → 이전 비트', () => {
+    const tl = new BeatTimeline(100);
+    expect(tl.currentBeatAt(2.4 - 0.001)).toBe(3);
+    expect(tl.currentBeatAt(2.4 - 0.299)).toBe(3);
+    tl.requestTempo(120, 6);
+    expect(tl.currentBeatAt(4.8 - 0.001)).toBe(7);
+    expect(tl.currentBeatAt(4.8 + 0.499)).toBe(8);
+  });
+
+  it('음수·NaN·Infinity → RangeError', () => {
+    const tl = new BeatTimeline(100);
+    expect(() => tl.currentBeatAt(-0.001)).toThrow(RangeError);
+    expect(() => tl.currentBeatAt(NaN)).toThrow(RangeError);
+    expect(() => tl.currentBeatAt(Infinity)).toThrow(RangeError);
+  });
+});
