@@ -62,8 +62,16 @@ type TimingCounts = { perfect: number; good: number; miss: number };
 type DodgeCounts = { perfect: number; good: number; miss: number; none: number; hits: number };
 
 export interface RunSummary {
-  /** BPM별 공격 판정 수 (일반 비트에서 판정된 공격만. 중복·회피 비트 공격 제외) */
+  /**
+   * BPM별 공격 판정 수 — 전투에 반영된 공격만 (pending, 확정 후 Miss로 콤보가 0이 된 late_miss_combo_reset).
+   * 중복·회피 비트 공격·확정 후 도착한 입력(beat_already_resolved)은 제외 (리뷰 T6#1).
+   */
   attackJudgeByBpm: Record<Bpm, TimingCounts>;
+  /**
+   * 진단용: 비트 확정 후 도착해 전투에 반영되지 않은 공격 입력(beat_already_resolved)의 판정 수.
+   * 성공률·첫 성공 시각에 쓰지 않는다. Perfect/Good이 보이면 D-08(a) 여유 시간 재검토 근거.
+   */
+  attackAfterResolveByBpm: Record<Bpm, TimingCounts>;
   /** BPM별 적 공격 비트 결과 (확정 기준) */
   dodgeByBpm: Record<Bpm, DodgeCounts>;
   damageDealtByBpm: Record<Bpm, number>;
@@ -78,12 +86,13 @@ export interface RunSummary {
   tempoRequests: number;
   maxBpm: Bpm;
   maxCombo: number;
-  /** 첫 Perfect/Good 공격 입력 시각(초, beat 0 기준). 없으면 null. H3 */
+  /** 전투에 반영된 첫 Perfect/Good 공격 입력 시각(초, beat 0 기준). 없으면 null. H3 */
   firstSuccessfulAttackSec: number | null;
 }
 
 export interface RunRecord {
-  version: 1;
+  /** 2: summary.attackAfterResolveByBpm 추가, attackJudgeByBpm에서 확정 후 입력 제외 (리뷰 T6#1) */
+  version: 2;
   runId: string;
   startedAt: string;
   calibrationOffsetMs: number;
@@ -191,7 +200,7 @@ export class RunTelemetry {
     const cause = status.phase === 'defeat' ? status.cause : null;
     this.events.push({ type: 'run_end', t, outcome: status.phase, cause, lastResolvedBeat });
     this.record = {
-      version: 1,
+      version: 2,
       ...this.meta,
       outcome: status.phase,
       cause,
@@ -205,15 +214,13 @@ export class RunTelemetry {
   }
 }
 
-const COUNTED_ATTACK_KINDS: ReadonlySet<InputOutcome['kind']> = new Set([
-  'pending',
-  'late_miss_combo_reset',
-  'beat_already_resolved',
-]);
+/** 전투 상태에 반영되는 공격 판정만 성공률에 센다 (리뷰 T6#1) */
+const COUNTED_ATTACK_KINDS: ReadonlySet<InputOutcome['kind']> = new Set(['pending', 'late_miss_combo_reset']);
 
 export function summarize(events: readonly TelemetryEvent[]): RunSummary {
   const s: RunSummary = {
     attackJudgeByBpm: perBpm(() => ({ perfect: 0, good: 0, miss: 0 })),
+    attackAfterResolveByBpm: perBpm(() => ({ perfect: 0, good: 0, miss: 0 })),
     dodgeByBpm: perBpm(() => ({ perfect: 0, good: 0, miss: 0, none: 0, hits: 0 })),
     damageDealtByBpm: perBpm(() => 0),
     enemyAttacks: 0,
@@ -229,9 +236,12 @@ export function summarize(events: readonly TelemetryEvent[]): RunSummary {
   for (const e of events) {
     switch (e.type) {
       case 'judge':
-        if (e.channel === 'attack' && COUNTED_ATTACK_KINDS.has(e.kind) && e.bpm !== null && e.result) {
+        if (e.channel !== 'attack' || e.bpm === null || !e.result) break;
+        if (COUNTED_ATTACK_KINDS.has(e.kind)) {
           s.attackJudgeByBpm[e.bpm][e.result]++;
           if (e.result !== 'miss' && s.firstSuccessfulAttackSec === null) s.firstSuccessfulAttackSec = e.t;
+        } else if (e.kind === 'beat_already_resolved') {
+          s.attackAfterResolveByBpm[e.bpm][e.result]++;
         }
         break;
       case 'tempo_opportunity':

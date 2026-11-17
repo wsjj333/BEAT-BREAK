@@ -139,3 +139,81 @@ describe('BattleSession — 템포 업', () => {
     expect(s.displayBeat(5.3)).toBe(9);
   });
 });
+
+/** 미입력으로 끝까지 진행해 기록을 얻는다 (beat 23 HP 0 패배) */
+function runToEnd(s: BattleSession, from: number) {
+  for (let t = from; !s.finishedRecord && t < 200; t += 0.05) s.update(t);
+  return s.finishedRecord!;
+}
+
+describe('리뷰 T6#1: 확정 후 도착한 입력은 성공 통계에서 제외', () => {
+  it('beat 1 확정 후 도착한 Good(+100ms) → beat_already_resolved, 성공률·첫 성공 시각에 안 들어감', () => {
+    const s = mk();
+    s.update(t100(1) + 0.3); // beat 0, 1 확정
+    expect(s.getState(t100(1) + 0.3).lastResolvedBeat).toBe(1);
+    const o = s.input(t100(1) + 0.1, 'attack');
+    expect(o).toMatchObject({ kind: 'beat_already_resolved', beat: 1, result: 'good' });
+
+    const sum = runToEnd(s, t100(1) + 0.35).summary;
+    expect(sum.attackJudgeByBpm[100]).toEqual({ perfect: 0, good: 0, miss: 0 });
+    expect(sum.firstSuccessfulAttackSec).toBeNull();
+    expect(sum.attackAfterResolveByBpm[100]).toEqual({ perfect: 0, good: 1, miss: 0 });
+    expect(sum.damageDealtByBpm[100]).toBe(0);
+  });
+
+  it('반영된 입력과 섞여도 반영된 것만 센다', () => {
+    const s = mk();
+    s.input(t100(0) + 0.01, 'attack'); // beat 0 Perfect (반영)
+    s.update(t100(1) + 0.3);
+    s.input(t100(1) + 0.02, 'attack'); // beat 1 확정 후 Perfect (미반영)
+    const sum = runToEnd(s, t100(1) + 0.35).summary;
+    expect(sum.attackJudgeByBpm[100]).toEqual({ perfect: 1, good: 0, miss: 0 });
+    expect(sum.attackAfterResolveByBpm[100]).toEqual({ perfect: 1, good: 0, miss: 0 });
+    expect(sum.firstSuccessfulAttackSec).toBeCloseTo(0.01, 9);
+  });
+
+  it('확정 후 Miss(late_miss_combo_reset)는 콤보를 바꾸므로 Miss로 센다', () => {
+    const s = mk();
+    s.update(t100(1) + 0.3);
+    expect(s.input(t100(1) + 0.2, 'attack')).toMatchObject({ kind: 'late_miss_combo_reset' });
+    const sum = runToEnd(s, t100(1) + 0.35).summary;
+    expect(sum.attackJudgeByBpm[100]).toEqual({ perfect: 0, good: 0, miss: 1 });
+  });
+});
+
+describe('리뷰 T6#2: 프레임 사이 템포 요청에서도 기회 집계', () => {
+  it('update()가 가능 상태를 관찰하기 전에 요청해 예약돼도 기회 1, 선택 1', () => {
+    const s = mk();
+    for (const b of [0, 1, 2, 3, 5]) s.input(t100(b), 'attack');
+    // 직전 프레임: 아직 콤보 0 (불가)
+    s.update(0.05);
+    // 프레임 사이에 비트 0~5가 확정되어 콤보 5가 됨 (update가 관찰하지 못한 상태 변화)
+    for (let b = 0; b <= 5; b++) s.combat.resolveBeat(b, t100(b) + 0.3);
+    const now = t100(5) + 0.31;
+    expect(s.requestTempoUp(now)).toMatchObject({ scheduled: true, applyAtBeat: 8 });
+
+    const sum = runToEnd(s, now + 0.01).summary;
+    expect(sum.tempoSelections).toBe(1);
+    expect(sum.tempoOpportunities).toBe(1);
+  });
+
+  it('update()가 이미 관찰한 기회 구간에서 요청하면 중복 집계하지 않음', () => {
+    const s = mk();
+    for (const b of [0, 1, 2, 3, 5]) s.input(t100(b), 'attack');
+    s.update(t100(5) + 0.3); // 여기서 기회 1
+    s.requestTempoUp(t100(5) + 0.31);
+    s.requestTempoUp(t100(5) + 0.32); // pending 거절
+    const sum = runToEnd(s, t100(5) + 0.35).summary;
+    expect(sum.tempoOpportunities).toBe(1);
+    expect(sum.tempoSelections).toBe(1);
+    expect(sum.tempoRequests).toBe(2);
+  });
+
+  it('불가 상태의 거절 요청은 기회로 세지 않음', () => {
+    const s = mk();
+    s.update(1);
+    expect(s.requestTempoUp(1.01)).toMatchObject({ scheduled: false, reason: 'combo_too_low' });
+    const sum = runToEnd(s, 1.05).summary;
+    expect(sum.tempoOpportunities).toBe(0);
+  });
+});

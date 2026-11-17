@@ -98,9 +98,17 @@ export class BattleSession {
     const state = this.combat.getState(nowSec);
     const beat = this.displayBeat(nowSec);
     const bpm = beat >= 0 ? this.combat.getBpmAtBeat(beat) : null;
+    // 리뷰 T6#2: 프레임 사이에 가능 상태가 된 뒤 바로 요청해도 기회가 집계되도록 요청 직전에도 관찰한다
+    this.observeTempoOpportunity(nowSec);
     const r: TempoRequestOutcome =
       nowSec < 0 ? { scheduled: false, reason: 'not_started' } : this.combat.requestTempoUp(nowSec);
-    if (r.scheduled) this.pendingTempo = { applyAtBeat: r.applyAtBeat };
+    if (r.scheduled) {
+      this.pendingTempo = { applyAtBeat: r.applyAtBeat };
+      // 보장: 예약 성공 = 가능 구간 안의 선택. 그 구간의 기회가 아직 없으면 지금 기록한다
+      // (표시용 가능 판정과 core 판정이 어긋나는 경우 대비). 예약 후에는 대기 상태 → 불가.
+      if (!this.tempoWasAvailable) this.recordOpportunity(nowSec, state.combo);
+      this.tempoWasAvailable = false;
+    }
     this.telemetry.recordTempoRequest(nowSec, bpm, state.combo, r);
     return r;
   }
@@ -148,13 +156,19 @@ export class BattleSession {
       return out;
     }
 
-    // 템포 업 기회: 불가 → 가능 전환 1회를 기회 1회로 센다 (D-08(c))
-    const available = this.tempoStatus(nowSec).kind === 'available';
-    if (available && !this.tempoWasAvailable) {
-      const beat = this.displayBeat(nowSec);
-      this.telemetry.recordTempoOpportunity(nowSec, beat, this.combat.getBpmAtBeat(beat), state.combo);
-    }
-    this.tempoWasAvailable = available;
+    this.observeTempoOpportunity(nowSec);
     return out;
+  }
+
+  /** 템포 업 기회: 불가 → 가능 전환 1회를 기회 1회로 센다 (D-08(c)) */
+  private observeTempoOpportunity(nowSec: number): void {
+    const available = this.tempoStatus(nowSec).kind === 'available';
+    if (available && !this.tempoWasAvailable) this.recordOpportunity(nowSec, this.combat.getState(nowSec).combo);
+    this.tempoWasAvailable = available;
+  }
+
+  private recordOpportunity(nowSec: number, combo: number): void {
+    const beat = Math.max(0, this.displayBeat(nowSec));
+    this.telemetry.recordTempoOpportunity(nowSec, beat, this.combat.getBpmAtBeat(beat), combo);
   }
 }
