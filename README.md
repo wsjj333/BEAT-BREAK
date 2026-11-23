@@ -16,14 +16,14 @@
 
 ## 개발 과정
 
-1. **기획** — 핵심 규칙과 수치를 기획서(v0.4)로 먼저 확정
+1. **기획** — 핵심 규칙과 수치를 기획서(v0.5)로 먼저 확정
 2. **AI 구현** — 기획서를 기준으로 Claude Code가 태스크 단위로 구현 (순수 로직 → 테스트 → Phaser/Web Audio 연결)
 3. **독립 리뷰** — 각 태스크의 diff를 별도로 리뷰하고 발견 사항과 조치를 기록
 4. **플레이 데이터로 규칙 수정** — 플레이 로그(텔레메트리)를 근거로 규칙을 조정하고 결정 이유를 기록
 
 ## 문서
 
-- [기획 및 개발계획 v0.4](docs/BEAT_BREAK_기획_및_개발계획_v0.4.md)
+- [기획 및 개발계획 v0.5](docs/BEAT_BREAK_기획_및_개발계획_v0.5.md)
 - [의사결정 기록 (decisions)](docs/decisions.md)
 - [독립 리뷰 기록 (review-log)](docs/review-log.md)
 - [플레이테스트 기록 (playtest-log)](docs/playtest-log.md)

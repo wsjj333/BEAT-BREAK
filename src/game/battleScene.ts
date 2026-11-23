@@ -485,10 +485,10 @@ export class BattleScene extends Phaser.Scene {
         this.flashJudge(`${prefix}${o.result.toUpperCase()} (이미 확정)`, JUDGE_COLOR[o.result]);
         break;
       case 'attack_ignored_dodge_beat':
-        this.flashJudge('공격 무시 — 회피 박자', JUDGE_COLOR.info);
+        this.flashJudge('회피 박자! 공격 불가 - 피격', JUDGE_COLOR.info);
         break;
       case 'dodge_no_effect':
-        this.flashJudge('회피 효과 없음 — 일반 박자', JUDGE_COLOR.info);
+        this.flashJudge('공격 박자! 회피 불가 - 기회 상실', JUDGE_COLOR.info);
         break;
       case 'duplicate_ignored':
         this.flashJudge('중복 입력 무시', JUDGE_COLOR.info);

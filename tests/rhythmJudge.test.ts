@@ -70,12 +70,19 @@ describe('RhythmJudge — 비트당 1회 판정', () => {
     expect(judge.judge(1.8, 'attack')).toMatchObject({ beat: 3, result: 'perfect' });
   });
 
-  it('attack과 dodge는 독립 — 같은 비트에 각각 1회씩 판정', () => {
+  it('D-10: 판정 기록은 박자 단위 — 첫 입력(채널 무관)만 판정, 이후 공격·회피 모두 duplicate', () => {
     const judge = new RhythmJudge(new BeatTimeline(100));
     expect(judge.judge(1.2 + 0.2, 'attack')).toMatchObject({ beat: 2, result: 'miss' });
-    expect(judge.judge(1.2 + 0.1, 'dodge')).toMatchObject({ beat: 2, result: 'good' });
+    expect(judge.judge(1.2 + 0.1, 'dodge')).toEqual({ beat: 2, result: 'duplicate_ignored' });
     expect(judge.judge(1.2, 'attack')).toEqual({ beat: 2, result: 'duplicate_ignored' });
     expect(judge.judge(1.2, 'dodge')).toEqual({ beat: 2, result: 'duplicate_ignored' });
+  });
+
+  it('D-10: 회피가 먼저면 같은 비트의 공격은 duplicate, 다른 비트는 영향 없음', () => {
+    const judge = new RhythmJudge(new BeatTimeline(100));
+    expect(judge.judge(1.2, 'dodge')).toMatchObject({ beat: 2, result: 'perfect' });
+    expect(judge.judge(1.2, 'attack')).toEqual({ beat: 2, result: 'duplicate_ignored' });
+    expect(judge.judge(1.8, 'attack')).toMatchObject({ beat: 3, result: 'perfect' });
   });
 });
 
@@ -100,9 +107,9 @@ describe('RhythmJudge — 템포 경계', () => {
   });
 
   it('beat 8 ±75ms → perfect', () => {
-    const judge = setup();
-    expect(judge.judge(4.8 + 0.075, 'attack')).toMatchObject({ beat: 8, result: 'perfect' });
-    expect(judge.judge(4.8 - 0.075, 'dodge')).toMatchObject({ beat: 8, result: 'perfect' });
+    // D-10: 같은 비트는 첫 입력만 판정하므로 부호마다 새 판정기
+    expect(setup().judge(4.8 + 0.075, 'attack')).toMatchObject({ beat: 8, result: 'perfect' });
+    expect(setup().judge(4.8 - 0.075, 'dodge')).toMatchObject({ beat: 8, result: 'perfect' });
   });
 
   it('beat 7은 기존 100BPM 윈도우 유지 (+90 perfect, -91 good)', () => {

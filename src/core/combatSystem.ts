@@ -54,8 +54,11 @@ export interface CombatState {
 
 export type InputOutcome =
   | { kind: 'ignored_finished' }
+  /** 그 비트에 이미 첫 입력(공격·회피 무관)이 있음 (D-10). */
   | { kind: 'duplicate_ignored'; beat: number }
+  /** 적 공격 비트의 첫 입력이 공격: 회피 기회 소모 → 확정 시 피해 1 (D-01, D-10). */
   | { kind: 'attack_ignored_dodge_beat'; beat: number; result: AttackTiming }
+  /** 일반 비트의 첫 입력이 회피: 공격 기회 소모, 콤보 유지, 피해 없음 (D-10). */
   | { kind: 'dodge_no_effect'; beat: number; result: AttackTiming }
   /** 확정 후 도착한 공격 Miss: 콤보만 0 (D-07). */
   | { kind: 'late_miss_combo_reset'; beat: number }
@@ -104,7 +107,9 @@ export class CombatSystem {
   private status: CombatStatus = { phase: 'playing' };
 
   /**
-   * 비트별 채널 최초 판정 결과 (확정 전). 입력 시 판정을 그대로 사용한다.
+   * 비트별 최초 판정 결과 (확정 전). 입력 시 판정을 그대로 사용한다.
+   * 한 비트에는 첫 입력 하나만 들어온다 (D-10): 일반 비트는 attack, 적 공격 비트는 dodge만 저장되고,
+   * 첫 입력이 반대 키였으면 아무것도 저장되지 않아 확정 시 'none'으로 처리된다.
    * 이미 판정된 입력의 비트 BPM은 바뀌지 않는다 (D-07b, TempoSystem 참조).
    */
   private readonly pending = new Map<number, Partial<Record<InputChannel, AttackTiming>>>();
@@ -157,6 +162,8 @@ export class CombatSystem {
 
   /**
    * 공격/회피 입력. 상태(HP·콤보)는 바꾸지 않고 버퍼에 저장한다(예외: D-07 late Miss).
+   * 한 박자에 행동은 하나 (D-10): 비트의 첫 입력(도착 순서)만 유효하고, 반대 키가 먼저 오면
+   * 그 비트의 기회를 소모한다. 이후 입력은 채널과 무관하게 duplicate_ignored.
    * @param inputSec 시간축 정렬된 입력 시각(초)
    */
   input(inputSec: number, channel: InputChannel): InputOutcome {

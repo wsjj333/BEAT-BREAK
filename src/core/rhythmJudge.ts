@@ -24,17 +24,17 @@ export type JudgeResult =
   | { beat: number; result: 'duplicate_ignored' };
 
 /**
- * 한 판 단위로 사용한다. 판정 기록(채널별 판정한 비트)은 초기화하지 않으므로
+ * 한 판 단위로 사용한다. 판정 기록(판정한 비트)은 초기화하지 않으므로
  * 재시작 시 새 인스턴스를 생성한다.
  */
 export class RhythmJudge {
   private offsetMs: number = CALIBRATION_OFFSET_DEFAULT_MS;
 
-  /** 채널별로 이미 판정한 비트 (Miss 포함) */
-  private readonly judgedBeats: Record<InputChannel, Set<number>> = {
-    attack: new Set(),
-    dodge: new Set(),
-  };
+  /**
+   * 이미 판정한 비트 (Miss 포함). 채널 구분 없이 박자 단위 (D-10):
+   * 한 박자의 첫 입력(공격·회피 무관)만 판정하고 이후 입력은 duplicate_ignored.
+   */
+  private readonly judgedBeats = new Set<number>();
 
   constructor(
     private readonly timeline: BeatTimeline,
@@ -66,18 +66,18 @@ export class RhythmJudge {
   /**
    * 입력을 판정한다.
    * @param inputSec 시간축 정렬된 입력 시각(초). 캘리브레이션 오프셋은 여기서 더한다.
-   * @param channel 입력 채널. 채널마다 비트당 최초 1회만 판정하며 Miss도 기회를 소모한다.
+   * @param _channel 입력 채널. 판정 기록에는 쓰지 않는다 — 채널과 무관하게 비트당 최초 1회만
+   *   판정하며 Miss도 기회를 소모한다 (D-10). 채널별 효과는 CombatSystem이 처리한다.
    */
-  judge(inputSec: number, channel: InputChannel): JudgeResult {
+  judge(inputSec: number, _channel: InputChannel): JudgeResult {
     // 보정된 입력시각 = 시간축 정렬된 입력시각 + 캘리브레이션 오프셋 (3.1)
     const correctedSec = inputSec + this.offsetMs / 1000;
     const { beat, errorMs } = this.timeline.nearestBeat(correctedSec);
 
-    const judged = this.judgedBeats[channel];
-    if (judged.has(beat)) {
+    if (this.judgedBeats.has(beat)) {
       return { beat, result: 'duplicate_ignored' };
     }
-    judged.add(beat);
+    this.judgedBeats.add(beat);
 
     // 판정 윈도우는 해당 비트의 BPM 기준
     const bpm = this.timeline.getBpmAtBeat(beat);

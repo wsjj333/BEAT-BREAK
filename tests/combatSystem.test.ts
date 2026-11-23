@@ -175,10 +175,12 @@ describe('CombatSystem — 3.5 회피 벡터 (D-01)', () => {
     expect(c.resolveBeat(7, closed(c, 7))).toMatchObject({ dodge: 'good', playerDamage: 1 });
   });
 
-  it('적 공격 비트에서 공격 입력 → attack_ignored_dodge_beat, 적 HP·콤보 변화 없음', () => {
+  it('적 공격 비트에서 공격 입력 → attack_ignored_dodge_beat, 회피 기회 소모 → 피해 1 (D-10)', () => {
     const c = new CombatSystem();
     for (const b of [0, 1]) c.input(at(c, b), 'attack');
     expect(c.input(at(c, 7), 'attack')).toMatchObject({ kind: 'attack_ignored_dodge_beat', beat: 7 });
+    // 뒤이은 Perfect 회피는 duplicate (D-10)
+    expect(c.input(at(c, 7), 'dodge')).toEqual({ kind: 'duplicate_ignored', beat: 7 });
     resolveThrough(c, 6);
     const r7 = c.resolveBeat(7, closed(c, 7));
     expect(r7).toMatchObject({ kind: 'enemy_attack', dodge: 'none', playerDamage: 1 });
@@ -198,6 +200,76 @@ describe('CombatSystem — 3.5 회피 벡터 (D-01)', () => {
     expect(c.input(at(c, 1), 'dodge')).toMatchObject({ kind: 'dodge_no_effect', beat: 1 });
     resolveThrough(c, 1);
     expect(st(c)).toMatchObject({ playerHp: 5, enemyHp: 300, combo: 0 });
+  });
+
+  it('D-10: 일반 비트 첫 입력이 회피 → 공격 기회 소모(뒤 공격 duplicate), 콤보 유지, 피해 없음', () => {
+    const c = new CombatSystem();
+    for (const b of [0, 1]) c.input(at(c, b), 'attack');
+    expect(c.input(at(c, 2), 'dodge')).toMatchObject({ kind: 'dodge_no_effect', beat: 2 });
+    expect(c.input(at(c, 2), 'attack')).toEqual({ kind: 'duplicate_ignored', beat: 2 });
+    const r2 = resolveThrough(c, 2)[2];
+    expect(r2).toMatchObject({ kind: 'normal', attack: 'none', enemyDamage: 0, state: { combo: 2, enemyHp: 275, playerHp: 5 } });
+  });
+});
+
+describe('CombatSystem — D-10 한 박자에 행동은 하나 (회귀)', () => {
+  /** 같은 시각에 두 키를 order 순서로 넣는다 (J+F 동시 입력) */
+  function both(c: CombatSystem, beat: number, order: [InputChannel, InputChannel], ms = 0) {
+    return order.map((ch) => c.input(at(c, beat, ms), ch));
+  }
+
+  it('일반 비트 J→F: 공격 Perfect 반영, F는 duplicate', () => {
+    const c = new CombatSystem();
+    expect(both(c, 1, ['attack', 'dodge'])).toEqual([
+      expect.objectContaining({ kind: 'pending', channel: 'attack', result: 'perfect' }),
+      { kind: 'duplicate_ignored', beat: 1 },
+    ]);
+    expect(resolveThrough(c, 1)[1]).toMatchObject({ attack: 'perfect', enemyDamage: 12.5 });
+  });
+
+  it('일반 비트 F→J: 공격 손실(none), 피해 0, 콤보 유지', () => {
+    const c = new CombatSystem();
+    c.input(at(c, 0), 'attack');
+    expect(both(c, 1, ['dodge', 'attack'])).toEqual([
+      expect.objectContaining({ kind: 'dodge_no_effect', beat: 1 }),
+      { kind: 'duplicate_ignored', beat: 1 },
+    ]);
+    expect(resolveThrough(c, 1)[1]).toMatchObject({ attack: 'none', enemyDamage: 0, state: { combo: 1 } });
+  });
+
+  it('적 공격 비트 F→J: 회피 Perfect, 피해 0', () => {
+    const c = new CombatSystem();
+    expect(both(c, 7, ['dodge', 'attack'])).toEqual([
+      expect.objectContaining({ kind: 'pending', channel: 'dodge', result: 'perfect' }),
+      { kind: 'duplicate_ignored', beat: 7 },
+    ]);
+    expect(resolveThrough(c, 7)[7]).toMatchObject({ kind: 'enemy_attack', dodge: 'perfect', playerDamage: 0 });
+  });
+
+  it('적 공격 비트 J→F: 회피 기회 소모, 피해 1', () => {
+    const c = new CombatSystem();
+    expect(both(c, 7, ['attack', 'dodge'])).toEqual([
+      expect.objectContaining({ kind: 'attack_ignored_dodge_beat', beat: 7 }),
+      { kind: 'duplicate_ignored', beat: 7 },
+    ]);
+    expect(resolveThrough(c, 7)[7]).toMatchObject({ kind: 'enemy_attack', dodge: 'none', playerDamage: 1, state: { playerHp: 4 } });
+  });
+
+  it('11/23 로그 패턴: 매 박자 J+F 연타(J 먼저) → 적 공격 비트마다 피격, beat 23 패배', () => {
+    const c = new CombatSystem();
+    for (let b = 0; b < 24; b++) both(c, b, ['attack', 'dodge']);
+    const rs = resolveThrough(c, 23);
+    const hits = rs.flatMap((r) => (r.kind === 'enemy_attack' && r.playerDamage > 0 ? [r.beat] : []));
+    expect(hits).toEqual([7, 11, 15, 19, 23]);
+    expect(st(c).status).toEqual({ phase: 'defeat', cause: 'player_hp' });
+  });
+
+  it('매 박자 J+F 연타(F 먼저) → 피격은 없지만 공격이 전부 손실되어 적 HP 그대로', () => {
+    const c = new CombatSystem();
+    for (let b = 0; b < 24; b++) both(c, b, ['dodge', 'attack']);
+    const rs = resolveThrough(c, 23);
+    expect(rs.every((r) => r.kind !== 'normal' || r.attack === 'none')).toBe(true);
+    expect(st(c)).toMatchObject({ playerHp: 5, enemyHp: 300, combo: 0, status: { phase: 'playing' } });
   });
 });
 
@@ -245,17 +317,18 @@ describe('CombatSystem — 피해량 (3.3)', () => {
 });
 
 describe('CombatSystem — 입력 순서 무관 확정 (3.3)', () => {
+  // D-10: 같은 비트 안에서는 첫 입력(도착 순서)이 결과를 정하므로 여기서는 비트마다 입력 1개.
+  // 같은 비트 순서 의존은 'D-10 한 박자에 행동은 하나' 테스트가 검증한다.
   const inputs: Array<[number, number, InputChannel]> = [
     [1, 20, 'attack'],
     [2, -120, 'attack'], // good
-    [2, 50, 'dodge'], // 일반 비트 회피 → 효과 없음
+    [9, 50, 'dodge'], // 일반 비트 회피 → 공격 기회 소모, 콤보 유지
     [3, 200, 'attack'], // miss
-    [7, 10, 'attack'], // 적 공격 비트 → 무시
+    [15, 10, 'attack'], // 적 공격 비트 공격 → 회피 기회 소모, 피해 1
     [7, -40, 'dodge'], // perfect
     [5, 100, 'attack'], // good
     [6, -10, 'attack'],
     [11, 95, 'dodge'], // good → 피해 1
-    [11, -30, 'attack'], // 적 공격 비트 → 무시
   ];
 
   function run(order: number[]): { results: BeatResolution[]; state: ReturnType<CombatSystem['getState']> } {
@@ -264,21 +337,21 @@ describe('CombatSystem — 입력 순서 무관 확정 (3.3)', () => {
       const [beat, ms, ch] = inputs[i];
       c.input(at(c, beat, ms), ch);
     }
-    const results = resolveThrough(c, 12);
+    const results = resolveThrough(c, 15);
     return { results, state: st(c) };
   }
 
   it('정순·역순·섞은 순서 → resolveBeat 결과와 최종 상태가 동일', () => {
     const forward = run(inputs.map((_, i) => i));
     const reverse = run(inputs.map((_, i) => inputs.length - 1 - i));
-    const shuffled = run([5, 2, 9, 0, 7, 4, 1, 8, 3, 6]);
+    const shuffled = run([5, 2, 8, 0, 7, 4, 1, 3, 6]);
 
     expect(reverse).toEqual(forward);
     expect(shuffled).toEqual(forward);
-    // 기대값 고정: 공격 1(P) 2(G) 3(M) 5(G) 6(P), 회피 7(P) 11(G)
+    // 기대값 고정: 공격 1(P) 2(G) 3(M) 5(G) 6(P), 회피 7(P) 11(G), 9 회피(콤보 유지), 15 공격(피해 1)
     expect(forward.state).toMatchObject({
       enemyHp: 300 - 12.5 - 10 - 0 - 10 - 12.5,
-      playerHp: 4,
+      playerHp: 3,
       combo: 2,
     });
   });

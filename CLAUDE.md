@@ -1,7 +1,7 @@
 # BEAT//BREAK — Claude Code 작업 규칙
 
 ## 목표
-`docs/BEAT_BREAK_기획_및_개발계획_v0.4.md`를 기준으로 웹 2D 게임의 핵심 메커니즘을 구현한다. **문서에 없는 규칙을 임의로 만들지 않는다.** 불명확한 점은 질문하거나 `docs/decisions.md`에 제안으로만 기록한다.
+`docs/BEAT_BREAK_기획_및_개발계획_v0.5.md`를 기준으로 웹 2D 게임의 핵심 메커니즘을 구현한다. **문서에 없는 규칙을 임의로 만들지 않는다.** 불명확한 점은 질문하거나 `docs/decisions.md`에 제안으로만 기록한다.
 
 ## 기술 스택
 - Vite, TypeScript(`strict`), Phaser 3, Vitest
@@ -9,7 +9,7 @@
 
 ## 폴더 구조
 - `src/core/` — 순수 TypeScript 로직 (Phaser/DOM/Web Audio 직접 참조 금지)
-- `src/core/config.ts` — v0.4 규칙값의 단일 원천
+- `src/core/config.ts` — v0.5 규칙값의 단일 원천
 - `src/game/` — Phaser 화면·입력·표시
 - `src/audio/` — Web Audio 시계 및 메트로놈 어댑터
 - `src/telemetry/` — 플레이 이벤트 수집

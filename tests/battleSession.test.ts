@@ -181,6 +181,25 @@ describe('리뷰 T6#1: 확정 후 도착한 입력은 성공 통계에서 제외
   });
 });
 
+describe('D-10: wrong_action 텔레메트리', () => {
+  it('일반 비트 F 먼저 / 적 공격 비트 J 먼저 → wrong_action 2건, 맞는 키 먼저면 기록 없음', () => {
+    const s = mk();
+    s.input(t100(1), 'dodge'); // 일반 비트 F 먼저 → wrong
+    s.input(t100(1), 'attack'); // duplicate
+    s.input(t100(2), 'attack'); // 맞는 키
+    s.input(t100(2), 'dodge'); // duplicate → wrong_action 아님
+    s.input(t100(7) + 0.1, 'attack'); // 적 공격 비트 J 먼저(Good 타이밍) → wrong
+    s.input(t100(7) + 0.1, 'dodge'); // duplicate
+    const rec = runToEnd(s, 0);
+    expect(rec.version).toBe(3);
+    const wrong = rec.events.filter((e) => e.type === 'wrong_action');
+    expect(wrong).toEqual([
+      { type: 'wrong_action', t: t100(1), beat: 1, bpm: 100, beatKind: 'normal', channel: 'dodge', result: 'perfect' },
+      { type: 'wrong_action', t: t100(7) + 0.1, beat: 7, bpm: 100, beatKind: 'enemy_attack', channel: 'attack', result: 'good' },
+    ]);
+  });
+});
+
 describe('리뷰 T6#2: 프레임 사이 템포 요청에서도 기회 집계', () => {
   it('update()가 가능 상태를 관찰하기 전에 요청해 예약돼도 기회 1, 선택 1', () => {
     const s = mk();

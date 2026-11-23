@@ -26,6 +26,20 @@ export type TelemetryEvent =
       result: AttackTiming | null;
       errorMs: number | null;
     }
+  /**
+   * D-10: 비트의 첫 입력이 그 비트에 맞지 않는 키였음 (일반 비트에 회피, 적 공격 비트에 공격).
+   * 같은 입력의 'judge' 이벤트 바로 뒤에 기록한다. result가 miss면 윈도우 밖(늦은 입력 포함).
+   */
+  | {
+      type: 'wrong_action';
+      t: number;
+      beat: number;
+      bpm: Bpm;
+      beatKind: 'normal' | 'enemy_attack';
+      /** 먼저 들어온 키 */
+      channel: InputChannel;
+      result: AttackTiming;
+    }
   | { type: 'tempo_opportunity'; t: number; beat: number; bpm: Bpm; combo: number }
   | {
       type: 'tempo_request';
@@ -91,8 +105,11 @@ export interface RunSummary {
 }
 
 export interface RunRecord {
-  /** 2: summary.attackAfterResolveByBpm 추가, attackJudgeByBpm에서 확정 후 입력 제외 (리뷰 T6#1) */
-  version: 2;
+  /**
+   * 2: summary.attackAfterResolveByBpm 추가, attackJudgeByBpm에서 확정 후 입력 제외 (리뷰 T6#1)
+   * 3: wrong_action 이벤트 추가 (D-10)
+   */
+  version: 3;
   runId: string;
   startedAt: string;
   calibrationOffsetMs: number;
@@ -146,6 +163,17 @@ export class RunTelemetry {
       result,
       errorMs: outcome.kind === 'pending' ? outcome.errorMs : null,
     });
+    if (outcome.kind === 'dodge_no_effect' || outcome.kind === 'attack_ignored_dodge_beat') {
+      this.events.push({
+        type: 'wrong_action',
+        t,
+        beat,
+        bpm: bpmAt(beat),
+        beatKind: outcome.kind === 'dodge_no_effect' ? 'normal' : 'enemy_attack',
+        channel,
+        result: outcome.result,
+      });
+    }
   }
 
   recordTempoOpportunity(t: number, beat: number, bpm: Bpm, combo: number): void {
@@ -200,7 +228,7 @@ export class RunTelemetry {
     const cause = status.phase === 'defeat' ? status.cause : null;
     this.events.push({ type: 'run_end', t, outcome: status.phase, cause, lastResolvedBeat });
     this.record = {
-      version: 2,
+      version: 3,
       ...this.meta,
       outcome: status.phase,
       cause,
